@@ -114,12 +114,6 @@ if ( $my_os == 'Darwin' ) then
     #rust installations
     set path = ($HOME/.cargo/bin $path)
     
-    #llvm
-    #setenv PATH /usr/local/opt/llvm/bin:$PATH
-    #setenv PATH ${HOME}/install/llvm/debug/bin:$PATH
-    #setenv LDFLAGS "-L${HOME}/install/llvm/debug/lib $LDFLAGS"
-    #setenv CPPFLAGS "-I${HOME}/install/llvm/debug/include $CPPFLAGS"
-
     #ensure right python on Mac
     if ( `which pip2` != /usr/local/bin/pip2) echo "Warning! Unexpected pip2 at `which pip2`"
     if ( `which pip3` != /usr/local/bin/pip3) echo "Warning! Unexpected pip3 at `which pip3`"
@@ -132,5 +126,13 @@ if ( $my_os == 'Darwin' ) then
 
 endif #endof: if $my_os == 'Darwin'
     
+
+if ( -e ${HOME}/.cshrc.local ) then
+    echo "--- source ${HOME}/.cshrc.local"
+    source ${HOME}/.cshrc.local
+endif
+
+checkpath
+
 echo "--- Done."
 
