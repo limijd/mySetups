@@ -1,0 +1,189 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	/01b9fc8/
+<cr>	vim/plug.vim	/^      nmap <buffer> <cr> <plug>(plug-preview)$/;"	m
+<plug>(plug-preview)	vim/plug.vim	/^    nnoremap <silent> <buffer> <plug>(plug-preview) :silent! call <SID>preview_commit()<cr>$/;"	m
+D	vim/plug.vim	/^  nnoremap <silent> <buffer> D  :PlugDiff<cr>$/;"	m
+Hi	vim/python/MyPyVim.py	/^def Hi():$/;"	f
+L	vim/plug.vim	/^    nnoremap <silent> <buffer> L :call <SID>status_load(line('.'))<cr>$/;"	m
+L	vim/plug.vim	/^    xnoremap <silent> <buffer> L :call <SID>status_load(line('.'))<cr>$/;"	m
+Plug	vim/plug.vim	/^  command! -nargs=+ -bar Plug call plug#(<args>)$/;"	c
+PlugClean	vim/plug.vim	/^  command! -nargs=0 -bar -bang PlugClean call s:clean(<bang>0)$/;"	c
+PlugDiff	vim/plug.vim	/^  command! -nargs=0 -bar PlugDiff    call s:diff()$/;"	c
+PlugInstall	vim/plug.vim	/^  command! -nargs=* -bar -bang -complete=customlist,s:names PlugInstall call s:install(<bang>0, /;"	c
+PlugLOD	vim/plug.vim	/^    augroup PlugLOD$/;"	a
+PlugSnapshot	vim/plug.vim	/^  command! -nargs=? -bar -bang -complete=file PlugSnapshot call s:snapshot(<bang>0, <f-args>)$/;"	c
+PlugStatus	vim/plug.vim	/^  command! -nargs=0 -bar PlugStatus  call s:status()$/;"	c
+PlugUpdate	vim/plug.vim	/^  command! -nargs=* -bar -bang -complete=customlist,s:names PlugUpdate  call s:update(<bang>0, [/;"	c
+PlugUpgrade	vim/plug.vim	/^  command! -nargs=0 -bar PlugUpgrade if s:upgrade() | execute 'source' s:esc(s:me) | endif$/;"	c
+R	vim/plug.vim	/^  nnoremap <silent> <buffer> R  :call <SID>retry()<cr>$/;"	m
+S	vim/plug.vim	/^  nnoremap <silent> <buffer> S  :PlugStatus<cr>$/;"	m
+U	vim/plug.vim	/^  nnoremap <silent> <buffer> U  :call <SID>status_update()<cr>$/;"	m
+U	vim/plug.vim	/^  xnoremap <silent> <buffer> U  :call <SID>status_update()<cr>$/;"	m
+X	vim/plug.vim	/^    nnoremap <silent> <buffer> X :call <SID>revert()<cr>$/;"	m
+[[	vim/plug.vim	/^  nnoremap <silent> <buffer> [[ :silent! call <SID>section('b')<cr>$/;"	m
+]]	vim/plug.vim	/^  nnoremap <silent> <buffer> ]] :silent! call <SID>section('')<cr>$/;"	m
+d	vim/plug.vim	/^      nnoremap <silent> <buffer> d :set opfunc=<sid>delete_op<cr>g@$/;"	m
+d	vim/plug.vim	/^      xnoremap <silent> <buffer> d :<c-u>call <sid>delete_op(visualmode(), 1)<cr>$/;"	m
+dd	vim/plug.vim	/^      nmap     <silent> <buffer> dd d_$/;"	m
+filetypedetect	vim/plug.vim	/^        augroup filetypedetect$/;"	a
+g:_plug_bang	vim/plug.vim	/^    let g:_plug_bang = (s:is_win && has('gui_running') ? 'silent ' : '').'!'.escape(cmd, '#!%')$/;"	v
+g:loaded_plug	vim/plug.vim	/^let g:loaded_plug = 1$/;"	v
+g:plug_home	vim/plug.vim	/^  let g:plug_home = home$/;"	v
+g:plugs	vim/plug.vim	/^    let g:plugs[name] = spec$/;"	v
+g:plugs	vim/plug.vim	/^  let g:plugs = {}$/;"	v
+g:plugs_order	vim/plug.vim	/^  let g:plugs_order = []$/;"	v
+g:plugs_order	vim/plug.vim	/^  let g:plugs_order = get(g:, 'plugs_order', keys(g:plugs))$/;"	v
+install list	vim/README.md	/^install list$/;"	c
+o	vim/plug.vim	/^      nmap <buffer> o <plug>(plug-preview)$/;"	m
+plug#	vim/plug.vim	/^function! plug#(repo, ...)$/;"	f
+plug#begin	vim/plug.vim	/^function! plug#begin(...)$/;"	f
+plug#end	vim/plug.vim	/^function! plug#end()$/;"	f
+plug#helptags	vim/plug.vim	/^function! plug#helptags()$/;"	f
+plug#load	vim/plug.vim	/^function! plug#load(...)$/;"	f
+plug#shellescape	vim/plug.vim	/^function! plug#shellescape(arg, ...)$/;"	f
+q	vim/plug.vim	/^  nnoremap <silent> <buffer> q  :if b:plug_preview==1<bar>pc<bar>endif<bar>bd<cr>$/;"	m
+q	vim/plug.vim	/^  nnoremap <silent> <buffer> q :q<cr>$/;"	m
+s:TYPE	vim/plug.vim	/^let s:TYPE = {$/;"	v
+s:append_ul	vim/plug.vim	/^function! s:append_ul(lnum, text)$/;"	f
+s:ask	vim/plug.vim	/^function! s:ask(message, ...)$/;"	f
+s:ask_no_interrupt	vim/plug.vim	/^function! s:ask_no_interrupt(...)$/;"	f
+s:assign_name	vim/plug.vim	/^function! s:assign_name()$/;"	f
+s:assoc	vim/plug.vim	/^function! s:assoc(dict, key, val)$/;"	f
+s:bang	vim/plug.vim	/^function! s:bang(cmd, ...)$/;"	f
+s:bar	vim/plug.vim	/^function! s:bar()$/;"	f
+s:base_spec	vim/plug.vim	/^let s:base_spec = { 'branch': '', 'frozen': 0 }$/;"	v
+s:batchfile	vim/plug.vim	/^  function! s:batchfile(cmd)$/;"	f
+s:check_ruby	vim/plug.vim	/^function! s:check_ruby()$/;"	f
+s:checkout	vim/plug.vim	/^function! s:checkout(spec)$/;"	f
+s:chsh	vim/plug.vim	/^function! s:chsh(swap)$/;"	f
+s:clean	vim/plug.vim	/^function! s:clean(force)$/;"	f
+s:compare_git_uri	vim/plug.vim	/^function! s:compare_git_uri(a, b)$/;"	f
+s:cpo_save	vim/plug.vim	/^let s:cpo_save = &cpo$/;"	v
+s:define_commands	vim/plug.vim	/^function! s:define_commands()$/;"	f
+s:delete	vim/plug.vim	/^function! s:delete(range, force)$/;"	f
+s:delete_op	vim/plug.vim	/^function! s:delete_op(type, ...)$/;"	f
+s:diff	vim/plug.vim	/^function! s:diff()$/;"	f
+s:dirpath	vim/plug.vim	/^  function! s:dirpath(path)$/;"	f
+s:do	vim/plug.vim	/^function! s:do(pull, force, todo)$/;"	f
+s:doautocmd	vim/plug.vim	/^function! s:doautocmd(...)$/;"	f
+s:dobufread	vim/plug.vim	/^function! s:dobufread(names)$/;"	f
+s:err	vim/plug.vim	/^function! s:err(msg)$/;"	f
+s:esc	vim/plug.vim	/^function! s:esc(path)$/;"	f
+s:escrtp	vim/plug.vim	/^function! s:escrtp(path)$/;"	f
+s:extract_name	vim/plug.vim	/^function! s:extract_name(str, prefix, suffix)$/;"	f
+s:find_name	vim/plug.vim	/^function! s:find_name(lnum)$/;"	f
+s:finish	vim/plug.vim	/^function! s:finish(pull)$/;"	f
+s:finish_bindings	vim/plug.vim	/^function! s:finish_bindings()$/;"	f
+s:format_git_log	vim/plug.vim	/^function! s:format_git_log(line)$/;"	f
+s:format_message	vim/plug.vim	/^function! s:format_message(bullet, name, message)$/;"	f
+s:git_dir	vim/plug.vim	/^function! s:git_dir(dir) abort$/;"	f
+s:git_local_branch	vim/plug.vim	/^function! s:git_local_branch(dir) abort$/;"	f
+s:git_origin_branch	vim/plug.vim	/^function! s:git_origin_branch(spec)$/;"	f
+s:git_origin_url	vim/plug.vim	/^function! s:git_origin_url(dir) abort$/;"	f
+s:git_revision	vim/plug.vim	/^function! s:git_revision(dir) abort$/;"	f
+s:git_validate	vim/plug.vim	/^function! s:git_validate(spec, check_branch)$/;"	f
+s:git_version_requirement	vim/plug.vim	/^function! s:git_version_requirement(...)$/;"	f
+s:glob	vim/plug.vim	/^function! s:glob(from, pattern)$/;"	f
+s:glob_dir	vim/plug.vim	/^function! s:glob_dir(path)$/;"	f
+s:hash_match	vim/plug.vim	/^function! s:hash_match(a, b)$/;"	f
+s:infer_properties	vim/plug.vim	/^function! s:infer_properties(name, repo)$/;"	f
+s:install	vim/plug.vim	/^function! s:install(force, names)$/;"	f
+s:is_local_plug	vim/plug.vim	/^  function! s:is_local_plug(repo)$/;"	f
+s:is_managed	vim/plug.vim	/^function! s:is_managed(name)$/;"	f
+s:is_preview_window_open	vim/plug.vim	/^function! s:is_preview_window_open()$/;"	f
+s:is_updated	vim/plug.vim	/^function! s:is_updated(dir)$/;"	f
+s:is_win	vim/plug.vim	/^let s:is_win = has('win32')$/;"	v
+s:isabsolute	vim/plug.vim	/^function! s:isabsolute(dir) abort$/;"	f
+s:job_abort	vim/plug.vim	/^function! s:job_abort()$/;"	f
+s:job_cb	vim/plug.vim	/^function! s:job_cb(fn, job, ch, data)$/;"	f
+s:job_exit_cb	vim/plug.vim	/^function! s:job_exit_cb(self, data) abort$/;"	f
+s:job_out_cb	vim/plug.vim	/^function! s:job_out_cb(self, data) abort$/;"	f
+s:last_non_empty_line	vim/plug.vim	/^function! s:last_non_empty_line(lines)$/;"	f
+s:lastline	vim/plug.vim	/^function! s:lastline(msg)$/;"	f
+s:lazy	vim/plug.vim	/^function! s:lazy(plug, opt)$/;"	f
+s:lines	vim/plug.vim	/^function! s:lines(msg)$/;"	f
+s:load_plugin	vim/plug.vim	/^function! s:load_plugin(spec)$/;"	f
+s:loaded	vim/plug.vim	/^let s:loaded = get(s:, 'loaded', {})$/;"	v
+s:loaded_names	vim/plug.vim	/^function! s:loaded_names()$/;"	f
+s:lod	vim/plug.vim	/^function! s:lod(names, types, ...)$/;"	f
+s:lod_cmd	vim/plug.vim	/^function! s:lod_cmd(cmd, bang, l1, l2, args, names)$/;"	f
+s:lod_ft	vim/plug.vim	/^function! s:lod_ft(pat, names)$/;"	f
+s:lod_map	vim/plug.vim	/^function! s:lod_map(map, names, with_prefix, prefix)$/;"	f
+s:log	vim/plug.vim	/^function! s:log(bullet, name, lines)$/;"	f
+s:log4	vim/plug.vim	/^function! s:log4(name, msg)$/;"	f
+s:logpos	vim/plug.vim	/^function! s:logpos(name)$/;"	f
+s:lpad	vim/plug.vim	/^function! s:lpad(str, len)$/;"	f
+s:mac_gui	vim/plug.vim	/^let s:mac_gui = has('gui_macvim') && has('gui_running')$/;"	v
+s:me	vim/plug.vim	/^  let s:me = resolve(expand('<sfile>:p'))$/;"	v
+s:names	vim/plug.vim	/^function! s:names(...)$/;"	f
+s:new_window	vim/plug.vim	/^function! s:new_window()$/;"	f
+s:nvim	vim/plug.vim	/^let s:nvim = has('nvim-0.2') || (has('nvim') && exists('*jobwait') && !s:is_win)$/;"	v
+s:nvim_cb	vim/plug.vim	/^function! s:nvim_cb(job_id, data, event) dict abort$/;"	f
+s:parse_options	vim/plug.vim	/^function! s:parse_options(arg)$/;"	f
+s:path	vim/plug.vim	/^  function! s:path(path)$/;"	f
+s:plug_buf	vim/plug.vim	/^let s:plug_buf = get(s:, 'plug_buf', -1)$/;"	v
+s:plug_call	vim/plug.vim	/^  function! s:plug_call(fn, ...)$/;"	f
+s:plug_expand	vim/plug.vim	/^function! s:plug_expand(fmt)$/;"	f
+s:plug_fnamemodify	vim/plug.vim	/^function! s:plug_fnamemodify(fname, mods)$/;"	f
+s:plug_getcwd	vim/plug.vim	/^function! s:plug_getcwd()$/;"	f
+s:plug_src	vim/plug.vim	/^let s:plug_src = 'https:\/\/github.com\/junegunn\/vim-plug.git'$/;"	v
+s:plug_tab	vim/plug.vim	/^let s:plug_tab = get(s:, 'plug_tab', -1)$/;"	v
+s:plug_tempname	vim/plug.vim	/^function! s:plug_tempname()$/;"	f
+s:plug_window_exists	vim/plug.vim	/^function! s:plug_window_exists()$/;"	f
+s:prepare	vim/plug.vim	/^function! s:prepare(...)$/;"	f
+s:preview_commit	vim/plug.vim	/^function! s:preview_commit()$/;"	f
+s:progress_bar	vim/plug.vim	/^function! s:progress_bar(line, bar, total)$/;"	f
+s:progress_opt	vim/plug.vim	/^function! s:progress_opt(base)$/;"	f
+s:reap	vim/plug.vim	/^function! s:reap(name)$/;"	f
+s:regress_bar	vim/plug.vim	/^function! s:regress_bar()$/;"	f
+s:reload_plugins	vim/plug.vim	/^function! s:reload_plugins()$/;"	f
+s:remove_rtp	vim/plug.vim	/^function! s:remove_rtp()$/;"	f
+s:remove_triggers	vim/plug.vim	/^function! s:remove_triggers(name)$/;"	f
+s:reorg_rtp	vim/plug.vim	/^function! s:reorg_rtp()$/;"	f
+s:retry	vim/plug.vim	/^function! s:retry()$/;"	f
+s:revert	vim/plug.vim	/^function! s:revert()$/;"	f
+s:rm_rf	vim/plug.vim	/^function! s:rm_rf(dir)$/;"	f
+s:rtp	vim/plug.vim	/^function! s:rtp(spec)$/;"	f
+s:section	vim/plug.vim	/^function! s:section(flags)$/;"	f
+s:shellesc_cmd	vim/plug.vim	/^function! s:shellesc_cmd(arg, script)$/;"	f
+s:shellesc_ps1	vim/plug.vim	/^function! s:shellesc_ps1(arg)$/;"	f
+s:shellesc_sh	vim/plug.vim	/^function! s:shellesc_sh(arg)$/;"	f
+s:snapshot	vim/plug.vim	/^function! s:snapshot(force, ...) abort$/;"	f
+s:source	vim/plug.vim	/^function! s:source(from, ...)$/;"	f
+s:spawn	vim/plug.vim	/^function! s:spawn(name, cmd, opts)$/;"	f
+s:split_rtp	vim/plug.vim	/^function! s:split_rtp()$/;"	f
+s:status	vim/plug.vim	/^function! s:status()$/;"	f
+s:status_load	vim/plug.vim	/^function! s:status_load(lnum)$/;"	f
+s:status_update	vim/plug.vim	/^function! s:status_update() range$/;"	f
+s:switch_in	vim/plug.vim	/^function! s:switch_in()$/;"	f
+s:switch_out	vim/plug.vim	/^function! s:switch_out(...)$/;"	f
+s:syntax	vim/plug.vim	/^function! s:syntax()$/;"	f
+s:system	vim/plug.vim	/^function! s:system(cmd, ...)$/;"	f
+s:system_chomp	vim/plug.vim	/^function! s:system_chomp(...)$/;"	f
+s:tick	vim/plug.vim	/^function! s:tick()$/;"	f
+s:to_a	vim/plug.vim	/^function! s:to_a(v)$/;"	f
+s:to_s	vim/plug.vim	/^function! s:to_s(v)$/;"	f
+s:triggers	vim/plug.vim	/^let s:triggers = get(s:, 'triggers', {})$/;"	v
+s:trim	vim/plug.vim	/^function! s:trim(str)$/;"	f
+s:update	vim/plug.vim	/^function! s:update(force, names)$/;"	f
+s:update_finish	vim/plug.vim	/^function! s:update_finish()$/;"	f
+s:update_impl	vim/plug.vim	/^function! s:update_impl(pull, force, args) abort$/;"	f
+s:update_python	vim/plug.vim	/^function! s:update_python()$/;"	f
+s:update_ruby	vim/plug.vim	/^function! s:update_ruby()$/;"	f
+s:update_vim	vim/plug.vim	/^function! s:update_vim()$/;"	f
+s:upgrade	vim/plug.vim	/^function! s:upgrade()$/;"	f
+s:upgrade_specs	vim/plug.vim	/^function! s:upgrade_specs()$/;"	f
+s:version_requirement	vim/plug.vim	/^function! s:version_requirement(val, min)$/;"	f
+s:vim8	vim/plug.vim	/^let s:vim8 = has('patch-8.0.0039') && exists('*job_start')$/;"	v
+s:warn	vim/plug.vim	/^function! s:warn(cmd, msg)$/;"	f
+s:with_cd	vim/plug.vim	/^function! s:with_cd(cmd, dir, ...)$/;"	f
+s:wrap_cmds	vim/plug.vim	/^  function! s:wrap_cmds(cmds)$/;"	f
+style fg	tmux/tmux.conf	/^set -g window-status-current-style fg=white,bg=black$/;"	k
+vim20	vim/README.md	/^# vim20$/;"	c

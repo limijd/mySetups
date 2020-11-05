@@ -1,0 +1,195 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	/p5.9.20201025.0/
+<cr>	vim/plug.vim	/^      nmap <buffer> <cr> <plug>(plug-preview)$/;"	kind:m	line:2708
+<plug>(plug-preview)	vim/plug.vim	/^    nnoremap <silent> <buffer> <plug>(plug-preview) :silent! call <SID>preview_commit()<cr>$/;"	kind:m	line:2706
+D	vim/plug.vim	/^  nnoremap <silent> <buffer> D  :PlugDiff<cr>$/;"	kind:m	line:908
+Hi	vim/python/MyPyVim.py	/^def Hi():$/;"	kind:f	line:1	access:public	signature:()
+L	vim/plug.vim	/^    nnoremap <silent> <buffer> L :call <SID>status_load(line('.'))<cr>$/;"	kind:m	line:2548
+L	vim/plug.vim	/^    xnoremap <silent> <buffer> L :call <SID>status_load(line('.'))<cr>$/;"	kind:m	line:2549
+Plug	vim/plug.vim	/^  command! -nargs=+ -bar Plug call plug#(<args>)$/;"	kind:c	line:260
+PlugClean	vim/plug.vim	/^  command! -nargs=0 -bar -bang PlugClean call s:clean(<bang>0)$/;"	kind:c	line:276
+PlugDiff	vim/plug.vim	/^  command! -nargs=0 -bar PlugDiff    call s:diff()$/;"	kind:c	line:279
+PlugInstall	vim/plug.vim	/^  command! -nargs=* -bar -bang -complete=customlist,s:names PlugInstall call s:install(<bang>0, /;"	kind:c	line:274
+PlugLOD	vim/plug.vim	/^    augroup PlugLOD$/;"	kind:a	line:342
+PlugLOD	vim/plug.vim	/^    augroup PlugLOD$/;"	kind:a	line:412
+PlugSnapshot	vim/plug.vim	/^  command! -nargs=? -bar -bang -complete=file PlugSnapshot call s:snapshot(<bang>0, <f-args>)$/;"	kind:c	line:280
+PlugStatus	vim/plug.vim	/^  command! -nargs=0 -bar PlugStatus  call s:status()$/;"	kind:c	line:278
+PlugUpdate	vim/plug.vim	/^  command! -nargs=* -bar -bang -complete=customlist,s:names PlugUpdate  call s:update(<bang>0, [/;"	kind:c	line:275
+PlugUpgrade	vim/plug.vim	/^  command! -nargs=0 -bar PlugUpgrade if s:upgrade() | execute 'source' s:esc(s:me) | endif$/;"	kind:c	line:277
+R	vim/plug.vim	/^  nnoremap <silent> <buffer> R  :call <SID>retry()<cr>$/;"	kind:m	line:907
+S	vim/plug.vim	/^  nnoremap <silent> <buffer> S  :PlugStatus<cr>$/;"	kind:m	line:909
+U	vim/plug.vim	/^  nnoremap <silent> <buffer> U  :call <SID>status_update()<cr>$/;"	kind:m	line:910
+U	vim/plug.vim	/^  xnoremap <silent> <buffer> U  :call <SID>status_update()<cr>$/;"	kind:m	line:911
+X	vim/plug.vim	/^    nnoremap <silent> <buffer> X :call <SID>revert()<cr>$/;"	kind:m	line:2715
+[[	vim/plug.vim	/^  nnoremap <silent> <buffer> [[ :silent! call <SID>section('b')<cr>$/;"	kind:m	line:913
+]]	vim/plug.vim	/^  nnoremap <silent> <buffer> ]] :silent! call <SID>section('')<cr>$/;"	kind:m	line:912
+d	vim/plug.vim	/^      nnoremap <silent> <buffer> d :set opfunc=<sid>delete_op<cr>g@$/;"	kind:m	line:2425
+d	vim/plug.vim	/^      xnoremap <silent> <buffer> d :<c-u>call <sid>delete_op(visualmode(), 1)<cr>$/;"	kind:m	line:2427
+dd	vim/plug.vim	/^      nmap     <silent> <buffer> dd d_$/;"	kind:m	line:2426
+filetypedetect	vim/plug.vim	/^        augroup filetypedetect$/;"	kind:a	line:386
+g:_plug_bang	vim/plug.vim	/^    let g:_plug_bang = (s:is_win && has('gui_running') ? 'silent ' : '').'!'.escape(cmd, '#!%')$/;"	kind:v	line:996
+g:loaded_plug	vim/plug.vim	/^let g:loaded_plug = 1$/;"	kind:v	line:90
+g:plug_home	vim/plug.vim	/^  let g:plug_home = home$/;"	kind:v	line:250
+g:plugs	vim/plug.vim	/^    let g:plugs[name] = spec$/;"	kind:v	line:716
+g:plugs	vim/plug.vim	/^  let g:plugs = {}$/;"	kind:v	line:251
+g:plugs_order	vim/plug.vim	/^  let g:plugs_order = []$/;"	kind:v	line:252
+g:plugs_order	vim/plug.vim	/^  let g:plugs_order = get(g:, 'plugs_order', keys(g:plugs))$/;"	kind:v	line:2780
+install list	vim/README.md	/^install list$/;"	kind:c	line:4
+o	vim/plug.vim	/^      nmap <buffer> o <plug>(plug-preview)$/;"	kind:m	line:2711
+plug#	vim/plug.vim	/^function! plug#(repo, ...)$/;"	kind:f	line:703	signature:(repo,...)
+plug#begin	vim/plug.vim	/^function! plug#begin(...)$/;"	kind:f	line:235	signature:(...)
+plug#end	vim/plug.vim	/^function! plug#end()$/;"	kind:f	line:336	signature:()
+plug#helptags	vim/plug.vim	/^function! plug#helptags()$/;"	kind:f	line:787	signature:()
+plug#load	vim/plug.vim	/^function! plug#load(...)$/;"	kind:f	line:603	signature:(...)
+plug#shellescape	vim/plug.vim	/^function! plug#shellescape(arg, ...)$/;"	kind:f	line:2208	signature:(arg,...)
+q	vim/plug.vim	/^  nnoremap <silent> <buffer> q  :if b:plug_preview==1<bar>pc<bar>endif<bar>bd<cr>$/;"	kind:m	line:937
+q	vim/plug.vim	/^  nnoremap <silent> <buffer> q :q<cr>$/;"	kind:m	line:2637
+s:TYPE	vim/plug.vim	/^let s:TYPE = {$/;"	kind:v	line:110
+s:append_ul	vim/plug.vim	/^function! s:append_ul(lnum, text)$/;"	kind:f	line:2657	signature:(lnum,text)
+s:ask	vim/plug.vim	/^function! s:ask(message, ...)$/;"	kind:f	line:310	signature:(message,...)
+s:ask_no_interrupt	vim/plug.vim	/^function! s:ask_no_interrupt(...)$/;"	kind:f	line:320	signature:(...)
+s:assign_name	vim/plug.vim	/^function! s:assign_name()$/;"	kind:f	line:959	signature:()
+s:assoc	vim/plug.vim	/^function! s:assoc(dict, key, val)$/;"	kind:f	line:306	signature:(dict,key,val)
+s:bang	vim/plug.vim	/^function! s:bang(cmd, ...)$/;"	kind:f	line:986	signature:(cmd,...)
+s:bar	vim/plug.vim	/^function! s:bar()$/;"	kind:f	line:1459	signature:()
+s:base_spec	vim/plug.vim	/^let s:base_spec = { 'branch': '', 'frozen': 0 }$/;"	kind:v	line:109
+s:batchfile	vim/plug.vim	/^  function! s:batchfile(cmd)$/;"	kind:f	line:502	signature:(cmd)
+s:check_ruby	vim/plug.vim	/^function! s:check_ruby()$/;"	kind:f	line:1127	signature:()
+s:checkout	vim/plug.vim	/^function! s:checkout(spec)$/;"	kind:f	line:1076	signature:(spec)
+s:chsh	vim/plug.vim	/^function! s:chsh(swap)$/;"	kind:f	line:971	signature:(swap)
+s:clean	vim/plug.vim	/^function! s:clean(force)$/;"	kind:f	line:2364	signature:(force)
+s:compare_git_uri	vim/plug.vim	/^function! s:compare_git_uri(a, b)$/;"	kind:f	line:2231	signature:(a,b)
+s:cpo_save	vim/plug.vim	/^let s:cpo_save = &cpo$/;"	kind:v	line:92
+s:define_commands	vim/plug.vim	/^function! s:define_commands()$/;"	kind:f	line:259	signature:()
+s:delete	vim/plug.vim	/^function! s:delete(range, force)$/;"	kind:f	line:2439	signature:(range,force)
+s:delete_op	vim/plug.vim	/^function! s:delete_op(type, ...)$/;"	kind:f	line:2435	signature:(type,...)
+s:diff	vim/plug.vim	/^function! s:diff()$/;"	kind:f	line:2661	signature:()
+s:dirpath	vim/plug.vim	/^  function! s:dirpath(path)$/;"	kind:f	line:478	signature:(path)
+s:dirpath	vim/plug.vim	/^  function! s:dirpath(path)$/;"	kind:f	line:516	signature:(path)
+s:do	vim/plug.vim	/^function! s:do(pull, force, todo)$/;"	kind:f	line:1017	signature:(pull,force,todo)
+s:doautocmd	vim/plug.vim	/^function! s:doautocmd(...)$/;"	kind:f	line:583	signature:(...)
+s:dobufread	vim/plug.vim	/^function! s:dobufread(names)$/;"	kind:f	line:589	signature:(names)
+s:err	vim/plug.vim	/^function! s:err(msg)$/;"	kind:f	line:525	signature:(msg)
+s:esc	vim/plug.vim	/^function! s:esc(path)$/;"	kind:f	line:537	signature:(path)
+s:escrtp	vim/plug.vim	/^function! s:escrtp(path)$/;"	kind:f	line:541	signature:(path)
+s:extract_name	vim/plug.vim	/^function! s:extract_name(str, prefix, suffix)$/;"	kind:f	line:2553	signature:(str,prefix,suffix)
+s:find_name	vim/plug.vim	/^function! s:find_name(lnum)$/;"	kind:f	line:2585	signature:(lnum)
+s:finish	vim/plug.vim	/^function! s:finish(pull)$/;"	kind:f	line:1086	signature:(pull)
+s:finish_bindings	vim/plug.vim	/^function! s:finish_bindings()$/;"	kind:f	line:906	signature:()
+s:format_git_log	vim/plug.vim	/^function! s:format_git_log(line)$/;"	kind:f	line:2645	signature:(line)
+s:format_message	vim/plug.vim	/^function! s:format_message(bullet, name, message)$/;"	kind:f	line:2243	signature:(bullet,name,message)
+s:git_dir	vim/plug.vim	/^function! s:git_dir(dir) abort$/;"	kind:f	line:123	signature:(dir)
+s:git_local_branch	vim/plug.vim	/^function! s:git_local_branch(dir) abort$/;"	kind:f	line:175	signature:(dir)
+s:git_origin_branch	vim/plug.vim	/^function! s:git_origin_branch(spec)$/;"	kind:f	line:185	signature:(spec)
+s:git_origin_url	vim/plug.vim	/^function! s:git_origin_url(dir) abort$/;"	kind:f	line:138	signature:(dir)
+s:git_revision	vim/plug.vim	/^function! s:git_revision(dir) abort$/;"	kind:f	line:147	signature:(dir)
+s:git_validate	vim/plug.vim	/^function! s:git_validate(spec, check_branch)$/;"	kind:f	line:2295	signature:(spec,check_branch)
+s:git_version_requirement	vim/plug.vim	/^function! s:git_version_requirement(...)$/;"	kind:f	line:457	signature:(...)
+s:glob	vim/plug.vim	/^function! s:glob(from, pattern)$/;"	kind:f	line:291	signature:(from,pattern)
+s:glob_dir	vim/plug.vim	/^function! s:glob_dir(path)$/;"	kind:f	line:2223	signature:(path)
+s:hash_match	vim/plug.vim	/^function! s:hash_match(a, b)$/;"	kind:f	line:1072	signature:(a,b)
+s:infer_properties	vim/plug.vim	/^function! s:infer_properties(name, repo)$/;"	kind:f	line:761	signature:(name,repo)
+s:install	vim/plug.vim	/^function! s:install(force, names)$/;"	kind:f	line:779	signature:(force,names)
+s:is_local_plug	vim/plug.vim	/^  function! s:is_local_plug(repo)$/;"	kind:f	line:482	signature:(repo)
+s:is_local_plug	vim/plug.vim	/^  function! s:is_local_plug(repo)$/;"	kind:f	line:520	signature:(repo)
+s:is_managed	vim/plug.vim	/^function! s:is_managed(name)$/;"	kind:f	line:1119	signature:(name)
+s:is_preview_window_open	vim/plug.vim	/^function! s:is_preview_window_open()$/;"	kind:f	line:2577	signature:()
+s:is_updated	vim/plug.vim	/^function! s:is_updated(dir)$/;"	kind:f	line:1013	signature:(dir)
+s:is_win	vim/plug.vim	/^let s:is_win = has('win32')$/;"	kind:v	line:99
+s:isabsolute	vim/plug.vim	/^function! s:isabsolute(dir) abort$/;"	kind:f	line:119	signature:(dir)
+s:job_abort	vim/plug.vim	/^function! s:job_abort()$/;"	kind:f	line:1328	signature:()
+s:job_cb	vim/plug.vim	/^function! s:job_cb(fn, job, ch, data)$/;"	kind:f	line:1378	signature:(fn,job,ch,data)
+s:job_exit_cb	vim/plug.vim	/^function! s:job_exit_cb(self, data) abort$/;"	kind:f	line:1371	signature:(self,data)
+s:job_out_cb	vim/plug.vim	/^function! s:job_out_cb(self, data) abort$/;"	kind:f	line:1357	signature:(self,data)
+s:last_non_empty_line	vim/plug.vim	/^function! s:last_non_empty_line(lines)$/;"	kind:f	line:1346	signature:(lines)
+s:lastline	vim/plug.vim	/^function! s:lastline(msg)$/;"	kind:f	line:860	signature:(msg)
+s:lazy	vim/plug.vim	/^function! s:lazy(plug, opt)$/;"	kind:f	line:328	signature:(plug,opt)
+s:lines	vim/plug.vim	/^function! s:lines(msg)$/;"	kind:f	line:856	signature:(msg)
+s:load_plugin	vim/plug.vim	/^function! s:load_plugin(spec)$/;"	kind:f	line:433	signature:(spec)
+s:loaded	vim/plug.vim	/^let s:loaded = get(s:, 'loaded', {})$/;"	kind:v	line:116
+s:loaded_names	vim/plug.vim	/^function! s:loaded_names()$/;"	kind:f	line:429	signature:()
+s:lod	vim/plug.vim	/^function! s:lod(names, types, ...)$/;"	kind:f	line:641	signature:(names,types,...)
+s:lod_cmd	vim/plug.vim	/^function! s:lod_cmd(cmd, bang, l1, l2, args, names)$/;"	kind:f	line:671	signature:(cmd,bang,l1,l2,args,names)
+s:lod_ft	vim/plug.vim	/^function! s:lod_ft(pat, names)$/;"	kind:f	line:663	signature:(pat,names)
+s:lod_map	vim/plug.vim	/^function! s:lod_map(map, names, with_prefix, prefix)$/;"	kind:f	line:677	signature:(map,names,with_prefix,prefix)
+s:log	vim/plug.vim	/^function! s:log(bullet, name, lines)$/;"	kind:f	line:1484	signature:(bullet,name,lines)
+s:log4	vim/plug.vim	/^function! s:log4(name, msg)$/;"	kind:f	line:1261	signature:(name,msg)
+s:logpos	vim/plug.vim	/^function! s:logpos(name)$/;"	kind:f	line:1469	signature:(name)
+s:lpad	vim/plug.vim	/^function! s:lpad(str, len)$/;"	kind:f	line:852	signature:(str,len)
+s:mac_gui	vim/plug.vim	/^let s:mac_gui = has('gui_macvim') && has('gui_running')$/;"	kind:v	line:98
+s:me	vim/plug.vim	/^  let s:me = resolve(expand('<sfile>:p'))$/;"	kind:v	line:104
+s:me	vim/plug.vim	/^  let s:me = resolve(expand('<sfile>:p'))$/;"	kind:v	line:107
+s:names	vim/plug.vim	/^function! s:names(...)$/;"	kind:f	line:1123	signature:(...)
+s:new_window	vim/plug.vim	/^function! s:new_window()$/;"	kind:f	line:864	signature:()
+s:nvim	vim/plug.vim	/^let s:nvim = has('nvim-0.2') || (has('nvim') && exists('*jobwait') && !s:is_win)$/;"	kind:v	line:100
+s:nvim_cb	vim/plug.vim	/^function! s:nvim_cb(job_id, data, event) dict abort$/;"	kind:f	line:1385	signature:(job_id,data,event)
+s:parse_options	vim/plug.vim	/^function! s:parse_options(arg)$/;"	kind:f	line:723	signature:(arg)
+s:path	vim/plug.vim	/^  function! s:path(path)$/;"	kind:f	line:474	signature:(path)
+s:path	vim/plug.vim	/^  function! s:path(path)$/;"	kind:f	line:512	signature:(path)
+s:plug_buf	vim/plug.vim	/^let s:plug_buf = get(s:, 'plug_buf', -1)$/;"	kind:v	line:97
+s:plug_call	vim/plug.vim	/^  function! s:plug_call(fn, ...)$/;"	kind:f	line:204	signature:(fn,...)
+s:plug_call	vim/plug.vim	/^  function! s:plug_call(fn, ...)$/;"	kind:f	line:214	signature:(fn,...)
+s:plug_expand	vim/plug.vim	/^function! s:plug_expand(fmt)$/;"	kind:f	line:227	signature:(fmt)
+s:plug_fnamemodify	vim/plug.vim	/^function! s:plug_fnamemodify(fname, mods)$/;"	kind:f	line:223	signature:(fname,mods)
+s:plug_getcwd	vim/plug.vim	/^function! s:plug_getcwd()$/;"	kind:f	line:219	signature:()
+s:plug_src	vim/plug.vim	/^let s:plug_src = 'https:\/\/github.com\/junegunn\/vim-plug.git'$/;"	kind:v	line:95
+s:plug_tab	vim/plug.vim	/^let s:plug_tab = get(s:, 'plug_tab', -1)$/;"	kind:v	line:96
+s:plug_tempname	vim/plug.vim	/^function! s:plug_tempname()$/;"	kind:f	line:231	signature:()
+s:plug_window_exists	vim/plug.vim	/^function! s:plug_window_exists()$/;"	kind:f	line:868	signature:()
+s:prepare	vim/plug.vim	/^function! s:prepare(...)$/;"	kind:f	line:916	signature:(...)
+s:preview_commit	vim/plug.vim	/^function! s:preview_commit()$/;"	kind:f	line:2599	signature:()
+s:progress_bar	vim/plug.vim	/^function! s:progress_bar(line, bar, total)$/;"	kind:f	line:2227	signature:(line,bar,total)
+s:progress_opt	vim/plug.vim	/^function! s:progress_opt(base)$/;"	kind:f	line:464	signature:(base)
+s:reap	vim/plug.vim	/^function! s:reap(name)$/;"	kind:f	line:1442	signature:(name)
+s:regress_bar	vim/plug.vim	/^function! s:regress_bar()$/;"	kind:f	line:1008	signature:()
+s:reload_plugins	vim/plug.vim	/^function! s:reload_plugins()$/;"	kind:f	line:437	signature:()
+s:remove_rtp	vim/plug.vim	/^function! s:remove_rtp()$/;"	kind:f	line:545	signature:()
+s:remove_triggers	vim/plug.vim	/^function! s:remove_triggers(name)$/;"	kind:f	line:627	signature:(name)
+s:reorg_rtp	vim/plug.vim	/^function! s:reorg_rtp()$/;"	kind:f	line:556	signature:()
+s:retry	vim/plug.vim	/^function! s:retry()$/;"	kind:f	line:1110	signature:()
+s:revert	vim/plug.vim	/^function! s:revert()$/;"	kind:f	line:2722	signature:()
+s:rm_rf	vim/plug.vim	/^function! s:rm_rf(dir)$/;"	kind:f	line:2356	signature:(dir)
+s:rtp	vim/plug.vim	/^function! s:rtp(spec)$/;"	kind:f	line:469	signature:(spec)
+s:section	vim/plug.vim	/^function! s:section(flags)$/;"	kind:f	line:2641	signature:(flags)
+s:shellesc_cmd	vim/plug.vim	/^function! s:shellesc_cmd(arg, script)$/;"	kind:f	line:2182	signature:(arg,script)
+s:shellesc_ps1	vim/plug.vim	/^function! s:shellesc_ps1(arg)$/;"	kind:f	line:2187	signature:(arg)
+s:shellesc_sh	vim/plug.vim	/^function! s:shellesc_sh(arg)$/;"	kind:f	line:2191	signature:(arg)
+s:snapshot	vim/plug.vim	/^function! s:snapshot(force, ...) abort$/;"	kind:f	line:2740	signature:(force,...)
+s:source	vim/plug.vim	/^function! s:source(from, ...)$/;"	kind:f	line:295	signature:(from,...)
+s:spawn	vim/plug.vim	/^function! s:spawn(name, cmd, opts)$/;"	kind:f	line:1391	signature:(name,cmd,opts)
+s:split_rtp	vim/plug.vim	/^function! s:split_rtp()$/;"	kind:f	line:2772	signature:()
+s:status	vim/plug.vim	/^function! s:status()$/;"	kind:f	line:2507	signature:()
+s:status_load	vim/plug.vim	/^function! s:status_load(lnum)$/;"	kind:f	line:2557	signature:(lnum)
+s:status_update	vim/plug.vim	/^function! s:status_update() range$/;"	kind:f	line:2568	signature:()
+s:switch_in	vim/plug.vim	/^function! s:switch_in()$/;"	kind:f	line:873	signature:()
+s:switch_out	vim/plug.vim	/^function! s:switch_out(...)$/;"	kind:f	line:892	signature:(...)
+s:syntax	vim/plug.vim	/^function! s:syntax()$/;"	kind:f	line:800	signature:()
+s:system	vim/plug.vim	/^function! s:system(cmd, ...)$/;"	kind:f	line:2257	signature:(cmd,...)
+s:system_chomp	vim/plug.vim	/^function! s:system_chomp(...)$/;"	kind:f	line:2290	signature:(...)
+s:tick	vim/plug.vim	/^function! s:tick()$/;"	kind:f	line:1509	signature:()
+s:to_a	vim/plug.vim	/^function! s:to_a(v)$/;"	kind:f	line:283	signature:(v)
+s:to_s	vim/plug.vim	/^function! s:to_s(v)$/;"	kind:f	line:287	signature:(v)
+s:triggers	vim/plug.vim	/^let s:triggers = get(s:, 'triggers', {})$/;"	kind:v	line:117
+s:trim	vim/plug.vim	/^function! s:trim(str)$/;"	kind:f	line:443	signature:(str)
+s:update	vim/plug.vim	/^function! s:update(force, names)$/;"	kind:f	line:783	signature:(force,names)
+s:update_finish	vim/plug.vim	/^function! s:update_finish()$/;"	kind:f	line:1266	signature:()
+s:update_impl	vim/plug.vim	/^function! s:update_impl(pull, force, args) abort$/;"	kind:f	line:1138	signature:(pull,force,args)
+s:update_python	vim/plug.vim	/^function! s:update_python()$/;"	kind:f	line:1567	signature:()
+s:update_ruby	vim/plug.vim	/^function! s:update_ruby()$/;"	kind:f	line:1956	signature:()
+s:update_vim	vim/plug.vim	/^function! s:update_vim()$/;"	kind:f	line:1502	signature:()
+s:upgrade	vim/plug.vim	/^function! s:upgrade()$/;"	kind:f	line:2474	signature:()
+s:upgrade_specs	vim/plug.vim	/^function! s:upgrade_specs()$/;"	kind:f	line:2501	signature:()
+s:version_requirement	vim/plug.vim	/^function! s:version_requirement(val, min)$/;"	kind:f	line:447	signature:(val,min)
+s:vim8	vim/plug.vim	/^let s:vim8 = has('patch-8.0.0039') && exists('*job_start')$/;"	kind:v	line:101
+s:warn	vim/plug.vim	/^function! s:warn(cmd, msg)$/;"	kind:f	line:531	signature:(cmd,msg)
+s:with_cd	vim/plug.vim	/^function! s:with_cd(cmd, dir, ...)$/;"	kind:f	line:2252	signature:(cmd,dir,...)
+s:wrap_cmds	vim/plug.vim	/^  function! s:wrap_cmds(cmds)$/;"	kind:f	line:487	signature:(cmds)
+style fg	tmux/tmux.conf	/^set -g window-status-current-style fg=white,bg=black$/;"	kind:k	line:4
+vim20	vim/README.md	/^# vim20$/;"	kind:c	line:1
