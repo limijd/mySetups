@@ -42,7 +42,6 @@ call plug#begin('~/.vim/plugged')
     Plug 'fholgado/minibufexpl.vim'
     Plug 'vhda/verilog_systemverilog.vim'
     if g:w_is_ctags_installed == 0
-        echo "ctags enabled"
         Plug 'ludovicchabant/vim-gutentags'
 
         "前半部分 “./.tags; ”代表在文件的所在目录下（不是 “:pwd”返回的 Vim 当前目录）查找名字为 “.tags”的符号文件，
@@ -120,4 +119,11 @@ import sys
 sys.path.append("%s/.vim/python/"%os.environ["HOME"])
 import MyPyVim #try import
 EOF
+
+if filereadable($HOME."/.vimrc.local")
+    "echo "read ".$HOME."/.vimrc.local"
+    let $VIMRC_LOCAL = $HOME."/.vimrc.local"
+    so $VIMRC_LOCAL
+endif
+
 
