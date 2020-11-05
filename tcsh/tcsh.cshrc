@@ -90,33 +90,35 @@ endif
 if ( $my_os == 'Darwin' ) then
     echo "--- Specific setting for $my_os";
 
-    set path = (${HOME}/dev-sandbox/local/myTTSExamples/google $path)
-    set path = (${HOME}/dev-sandbox/local/myChineseData/bin $path)
-    set path = (${HOME}/opt/binutils/bin $path)
+    # /usr/local/opt installations
+    set path = (/usr/local/opt/binutils/bin $path)
+    set path = (/usr/local/opt/google_tts $path)
     set path = (/usr/local/opt/ankiLearnChinese $path)
-    set path = (/usr/local/Cellar/universal-ctags/HEAD-dfa2ebf/bin $path)
+    set path = (/usr/local/opt/myChineseData/bin $path)
+    set path = (/usr/local/opt/openjdk/bin $path)
 
-
-    set path = (/usr/local/Cellar/mysql/8.0.22/bin/ $path)
-    set path = ($HOME/.cargo/bin $path)
-    
     setenv PATH /usr/local/opt/qt/bin:$PATH
     setenv LDFLAGS -L/usr/local/opt/qt/lib;
     setenv CPPFLAGS -I/usr/local/opt/qt/include;
     setenv PKG_CONFIG_PATH /usr/local/opt/qt/lib/pkgconfig;
-    
+
     setenv PATH /usr/local/opt/mysql@8.0/bin:$PATH
     setenv LDFLAGS "-L/usr/local/opt/mysql@8.0/lib $LDFLAGS"
     setenv CPPFLAGS "-I/usr/local/opt/mysql@8.0/include $CPPFLAGS"
     setenv PKG_CONFIG_PATH /usr/local/opt/mysql@8.0/lib/pkgconfig:$PKG_CONFIG_PATH
-    
-    setenv PATH /usr/local/opt/openjdk/bin:$PATH
 
+    # brew installations
+    set path = (/usr/local/Cellar/universal-ctags/HEAD-dfa2ebf/bin $path)
+    set path = (/usr/local/Cellar/mysql/8.0.22/bin/ $path)
+
+    #rust installations
+    set path = ($HOME/.cargo/bin $path)
+    
     #llvm
     #setenv PATH /usr/local/opt/llvm/bin:$PATH
-    setenv PATH ${HOME}/install/llvm/debug/bin:$PATH
-    setenv LDFLAGS "-L${HOME}/install/llvm/debug/lib $LDFLAGS"
-    setenv CPPFLAGS "-I${HOME}/install/llvm/debug/include $CPPFLAGS"
+    #setenv PATH ${HOME}/install/llvm/debug/bin:$PATH
+    #setenv LDFLAGS "-L${HOME}/install/llvm/debug/lib $LDFLAGS"
+    #setenv CPPFLAGS "-I${HOME}/install/llvm/debug/include $CPPFLAGS"
 
     #ensure right python on Mac
     if ( `which pip2` != /usr/local/bin/pip2) echo "Warning! Unexpected pip2 at `which pip2`"
