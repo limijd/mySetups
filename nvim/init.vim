@@ -31,10 +31,30 @@ let g:w_is_ctags_installed = v:shell_error
 " 2. Then put plug.vim into ~/.vim/autoload
 " 3. start vim. run: PlugUpdate
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-call plug#begin('~/.vim/plugged')
+call plug#begin('~/.config/nvim/plugged')
 
-Plug 'nvim-treesitter/nvim-treesitter'
-Plug 'nvim-treesitter/completion-treesitter'
+    Plug 'neovim/nvim-lspconfig'
+    Plug 'hrsh7th/cmp-nvim-lsp'
+    Plug 'hrsh7th/cmp-nvim-lua'
+    Plug 'hrsh7th/cmp-buffer'
+    Plug 'hrsh7th/cmp-path'
+    Plug 'hrsh7th/cmp-cmdline'
+    Plug 'hrsh7th/nvim-cmp'
+    " Use <Tab> and <S-Tab> to navigate through popup menu
+    inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+    inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+    " Set completeopt to have a better completion experience
+    set completeopt=menuone,noinsert,noselect
+    " Avoid showing message extra message when using completion
+    set shortmess+=c
+
+    Plug 'nvim-treesitter/nvim-treesitter'
+    Plug 'nvim-treesitter/playground'
+    "Plug 'nvim-treesitter/completion-treesitter'
+
+    """ useful to matchup different kinds of keyword for example begin...end,
+    """ task...endtask . etc.
+    Plug 'andymass/vim-matchup'
 
     Plug 'skywind3000/quickmenu.vim'
     noremap <silent><F12> :call quickmenu#toggle(0)<cr> 
@@ -43,9 +63,13 @@ Plug 'nvim-treesitter/completion-treesitter'
     Plug 'vimwiki/vimwiki'
     Plug 'preservim/nerdtree'
     Plug 'fholgado/minibufexpl.vim'
-    Plug 'vhda/verilog_systemverilog.vim'
+
+    """ verilog/system_verilog.vim is disabled because nvim-treesitter-verilog is supposed to do better
+    """ job than it.
+    "Plug 'vhda/verilog_systemverilog.vim'
+
     if g:w_is_ctags_installed == 0
-        Plug 'ludovicchabant/vim-gutentags'
+        "Plug 'ludovicchabant/vim-gutentags'
 
         "前半部分 “./.tags; ”代表在文件的所在目录下（不是 “:pwd”返回的 Vim 当前目录）查找名字为 “.tags”的符号文件，
         "后面一个分号代表查找不到的话向上递归到父目录，直到找到 .tags 文件或者递归到了根目录还没找到，
@@ -128,5 +152,67 @@ if filereadable($HOME."/.vimrc.local")
     let $VIMRC_LOCAL = $HOME."/.vimrc.local"
     so $VIMRC_LOCAL
 endif
+
+
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+    -- One of "all", "maintained" (parsers with maintainers), or a list of languages
+    ensure_installed = "maintained",
+
+    -- Install languages synchronously (only applied to `ensure_installed`)
+    sync_install = false,
+
+    -- List of parsers to ignore installing
+    ignore_install = { "javascript" },
+
+    highlight = {
+        -- `false` will disable the whole extension
+        enable = true,
+
+        -- list of language that will be disabled
+        disable = { "rust" },
+
+        -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+        -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+        -- Using this option may slow down your editor, and you may see some duplicate highlights.
+        -- Instead of true it can also be a list of languages
+        additional_vim_regex_highlighting = false,
+    },
+
+    indent = {
+        enable = true
+    },
+
+    --- W: why it's not working ?
+    incremental_selection = {
+      enable = true,
+      keymaps = {
+        init_selection = "gnn",
+        node_incremental = "grn",
+        scope_incremental = "grc",
+        node_decremental = "grm",
+      },
+    },
+
+    playground = {
+    enable = true,
+    disable = {},
+    updatetime = 25, -- Debounced time for highlighting nodes in the playground from source code
+    persist_queries = false, -- Whether the query persists across vim sessions
+    keybindings = {
+        toggle_query_editor = 'o',
+        toggle_hl_groups = 'i',
+        toggle_injected_languages = 't',
+        toggle_anonymous_nodes = 'a',
+        toggle_language_display = 'I',
+        focus_language = 'f',
+        unfocus_language = 'F',
+        update = 'R',
+        goto_node = '<cr>',
+        show_help = '?',
+        },
+    }
+}
+EOF
 
 

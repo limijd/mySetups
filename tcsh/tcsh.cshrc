@@ -102,23 +102,26 @@ if ( $my_os == 'Darwin' ) then
     setenv CPPFLAGS -I/usr/local/opt/qt/include;
     setenv PKG_CONFIG_PATH /usr/local/opt/qt/lib/pkgconfig;
 
-    setenv PATH /usr/local/opt/mysql@8.0/bin:$PATH
-    setenv LDFLAGS "-L/usr/local/opt/mysql@8.0/lib $LDFLAGS"
-    setenv CPPFLAGS "-I/usr/local/opt/mysql@8.0/include $CPPFLAGS"
-    setenv PKG_CONFIG_PATH /usr/local/opt/mysql@8.0/lib/pkgconfig:$PKG_CONFIG_PATH
+    #setenv PATH /usr/local/opt/mysql@8.0/bin:$PATH
+    #setenv LDFLAGS "-L/usr/local/opt/mysql@8.0/lib $LDFLAGS"
+    #setenv CPPFLAGS "-I/usr/local/opt/mysql@8.0/include $CPPFLAGS"
+    #setenv PKG_CONFIG_PATH /usr/local/opt/mysql@8.0/lib/pkgconfig:$PKG_CONFIG_PATH
 
     # brew installations
     set path = (/usr/local/Cellar/universal-ctags/HEAD-dfa2ebf/bin $path)
-    set path = (/usr/local/Cellar/mysql/8.0.22/bin/ $path)
+    #set path = (/usr/local/Cellar/mysql/8.0.22/bin/ $path)
+    set path = (/usr/local/Cellar/git/2.29.2/bin $path)
+    #set path = (/usr/local/opt/python@3.8/bin $path)
+    set path = (/usr/local/opt/python@3.9/bin $path)
 
     #rust installations
     set path = ($HOME/.cargo/bin $path)
     
     #ensure right python on Mac
     if ( `which pip2` != /usr/local/bin/pip2) echo "Warning! Unexpected pip2 at `which pip2`"
-    if ( `which pip3` != /usr/local/bin/pip3) echo "Warning! Unexpected pip3 at `which pip3`"
+    #if ( `which pip3` != /usr/local/bin/pip3) echo "Warning! Unexpected pip3 at `which pip3`"
     if ( `which python2` != /usr/local/bin/python2 ) echo "Warning! Unexpected python2 at `which python2`"
-    if ( `which python3` != /usr/local/bin/python3 ) echo "Warning! Unexpected python3 at `which python3`"
+    #if ( `which python3` != /usr/local/bin/python3 ) echo "Warning! Unexpected python3 at `which python3`"
     #if ( `which python3.8` != /usr/local/bin/python3.8 ) echo "Warning! Unexpected python3.8 at `which python3.8`"
     if ( `which python2.7` != /usr/local/bin/python2.7 ) echo "Warning! Unexpected python2.7 at `which python2.7`"
 
@@ -134,5 +137,6 @@ endif
 
 checkpath
 
+setenv CLASSPATH /usr/local/Cellar/antlr/4.9.2/antlr-4.9.2-complete.jar:.
 echo "--- Done."
 
