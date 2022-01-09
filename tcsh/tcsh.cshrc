@@ -87,6 +87,7 @@ if ( $my_os == 'GNU/Linux' ) then
     checkpath
 endif
 
+setenv LDFLAGS
 if ( $my_os == 'Darwin' ) then
     echo "--- Specific setting for $my_os";
 
@@ -140,9 +141,16 @@ checkpath
 set path = (/home/wli/install/x86_64@rh7/nvim-0.7.0-dev/bin $path)
 set path = (/home/wli/install/x86_64@rh7/cmake-3.22.1/bin $path)
 set path = (/home/wli/install/x86_64@rh7/gcc-7.5.0/bin $path)
+
+#default c/c++ compiler for CentOS7 
+setenv CC /home/wli/install/x86_64@rh7/gcc-7.5.0/bin/gcc
+setenv CXX /home/wli/install/x86_64@rh7/gcc-7.5.0/bin/g++
+setenv LDFLAGS "-Wl,-rpath,/home/wli/install/x86_64@rh7/gcc-7.5.0/lib64:XORIGIN ${LDFLAGS}"
+
 set path = (/home/wli/install/x86_64@rh7/llvm-10.0.1/bin $path)
 set path = (/home/wli/install/x86_64@rh7/nodejs-17.3.0/bin $path)
 set path = ($HOME/.cargo/bin $path)
+set path = (/home/wli/install/x86_64@rh7/patchelf-0.14.3/bin/ $path)
 
 setenv CLASSPATH /usr/local/Cellar/antlr/4.9.2/antlr-4.9.2-complete.jar:.
 
