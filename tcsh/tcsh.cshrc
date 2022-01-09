@@ -49,7 +49,7 @@ alias tl            "ll -t -r"
 alias la            "ls -a -l"
 alias ll            "ls -l "
 alias env           "env |sort|less"
-alias ls 	        "/bin/ls -G "
+alias ls 	        "/bin/ls --color "
 alias gitlog        "git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
 alias dev	        "cd ~/dev-sandbox"
 alias tarzip        "tar -cvf \!*.tar \!*; gzip \!*.tar"
@@ -137,6 +137,16 @@ endif
 
 checkpath
 
+set path = (/home/wli/install/x86_64@rh7/nvim-0.7.0-dev/bin $path)
+set path = (/home/wli/install/x86_64@rh7/cmake-3.22.1/bin $path)
+set path = (/home/wli/install/x86_64@rh7/gcc-7.5.0/bin $path)
+set path = (/home/wli/install/x86_64@rh7/llvm-10.0.1/bin $path)
+set path = (/home/wli/install/x86_64@rh7/nodejs-17.3.0/bin $path)
+set path = ($HOME/.cargo/bin $path)
+
 setenv CLASSPATH /usr/local/Cellar/antlr/4.9.2/antlr-4.9.2-complete.jar:.
+
+#source $HOME/.cargo/env
+
 echo "--- Done."
 

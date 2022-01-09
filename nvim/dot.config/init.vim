@@ -23,7 +23,10 @@ syntax on
 set nu
 
 let g:w_which_ctags = system("which ctags")
-let g:w_is_ctags_installed = v:shell_error 
+" let g:w_is_ctags_installed = v:shell_error 
+" W: current disable ctags and gutentags since coc.nvim is much better
+" solution now.
+let g:w_is_ctags_installed = 1
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " vim-plug managed plugins: vim-plug,
@@ -31,15 +34,21 @@ let g:w_is_ctags_installed = v:shell_error
 " 2. Then put plug.vim into ~/.vim/autoload
 " 3. start vim. run: PlugUpdate
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-call plug#begin('~/.config/nvim/plugged')
+call plug#begin('/home/wli/.config/nvim/plugged')
 
-    Plug 'neovim/nvim-lspconfig'
+	let g:coc_node_path = '/home/wli/install/x86_64@rh7/nodejs-17.3.0/bin/node'
+    "Plug 'neoclide/coc.nvim', {'branch': 'release'}
+    "Plug 'neoclide/coc.nvim'
+    Plug 'neoclide/coc.nvim', { 'branch': 'master', 'do': 'yarn install --frozen-lockfile' }
+
+    "Plug 'neovim/nvim-lspconfig'
     Plug 'hrsh7th/cmp-nvim-lsp'
     Plug 'hrsh7th/cmp-nvim-lua'
     Plug 'hrsh7th/cmp-buffer'
     Plug 'hrsh7th/cmp-path'
     Plug 'hrsh7th/cmp-cmdline'
     Plug 'hrsh7th/nvim-cmp'
+
     " Use <Tab> and <S-Tab> to navigate through popup menu
     inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
     inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
@@ -52,24 +61,27 @@ call plug#begin('~/.config/nvim/plugged')
     Plug 'nvim-treesitter/playground'
     "Plug 'nvim-treesitter/completion-treesitter'
 
-    """ useful to matchup different kinds of keyword for example begin...end,
-    """ task...endtask . etc.
-    Plug 'andymass/vim-matchup'
-
     Plug 'skywind3000/quickmenu.vim'
     noremap <silent><F12> :call quickmenu#toggle(0)<cr> 
     """let g:quickmenu_options="HL"
 
+    Plug 'junegunn/fzf'
+    Plug 'junegunn/fzf.vim'
+
     Plug 'vimwiki/vimwiki'
     Plug 'preservim/nerdtree'
     Plug 'fholgado/minibufexpl.vim'
+    Plug 'vhda/verilog_systemverilog.vim'
 
-    """ verilog/system_verilog.vim is disabled because nvim-treesitter-verilog is supposed to do better
-    """ job than it.
-    "Plug 'vhda/verilog_systemverilog.vim'
 
+    """indent, use IndentLineToggle to toggle
+    Plug 'Yggdroot/indentLine'
+    let g:indentLine_enabled = 1
+    "let g:indentLine_char_list = ['|', '¦', '┆', '┊']
+
+    """ disable gutentags for now
     if g:w_is_ctags_installed == 0
-        "Plug 'ludovicchabant/vim-gutentags'
+        Plug 'ludovicchabant/vim-gutentags'
 
         "前半部分 “./.tags; ”代表在文件的所在目录下（不是 “:pwd”返回的 Vim 当前目录）查找名字为 “.tags”的符号文件，
         "后面一个分号代表查找不到的话向上递归到父目录，直到找到 .tags 文件或者递归到了根目录还没找到，
@@ -117,6 +129,45 @@ let g:miniBufExplMapWindowNavArrows = 1
 let g:miniBufExplMapCTabSwitchBufs = 1
 let g:miniBufExplModSelTarget = 1 
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Own Functions
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fu! Treesitter_install_langs()
+    TSInstall bash
+    TSInstall cpp
+    TSInstall cmake 
+    TSInstall css
+    TSInstall html
+    TSInstall java
+    TSInstall javascript
+    TSInstall json
+    TSInstall llvm
+    TSInstall lua
+    TSInstall make
+    TSInstall markdown
+    TSInstall regex
+    TSInstall verilog
+    TSInstall vim
+    TSInstall yaml
+endfunction
+
+fu! Coc_install_langs()
+    """ ref: https://github.com/neoclide/coc.nvim/wiki/Using-coc-extensions
+    CocInstall coc-tsserver coc-json coc-html coc-css 
+    CocInstall coc-sh coc-pyright
+    CocInstall coc-cmake
+    CocInstall coc-yaml
+    CocInstall coc-calc
+    CocInstall coc-explorer
+    CocInstall coc-git
+    CocInstall coc-lists
+    CocInstall coc-snippets
+    """ may cause confuse on function names
+    """CocInstall coc-spell-checker 
+    CocInstall coc-svg
+endfunction
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Python3
@@ -139,80 +190,10 @@ SayHello()
 EOF
 endfunction
 
-python3 << EOF
-# -*- coding: utf-8 -*-
-import os
-import sys
-sys.path.append("%s/.vim/python/"%os.environ["HOME"])
-import MyPyVim #try import
-EOF
-
 if filereadable($HOME."/.vimrc.local")
     "echo "read ".$HOME."/.vimrc.local"
     let $VIMRC_LOCAL = $HOME."/.vimrc.local"
     so $VIMRC_LOCAL
 endif
-
-
-lua <<EOF
-require'nvim-treesitter.configs'.setup {
-    -- One of "all", "maintained" (parsers with maintainers), or a list of languages
-    ensure_installed = "maintained",
-
-    -- Install languages synchronously (only applied to `ensure_installed`)
-    sync_install = false,
-
-    -- List of parsers to ignore installing
-    ignore_install = { "javascript" },
-
-    highlight = {
-        -- `false` will disable the whole extension
-        enable = true,
-
-        -- list of language that will be disabled
-        disable = { "rust" },
-
-        -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-        -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-        -- Using this option may slow down your editor, and you may see some duplicate highlights.
-        -- Instead of true it can also be a list of languages
-        additional_vim_regex_highlighting = false,
-    },
-
-    indent = {
-        enable = true
-    },
-
-    --- W: why it's not working ?
-    incremental_selection = {
-      enable = true,
-      keymaps = {
-        init_selection = "gnn",
-        node_incremental = "grn",
-        scope_incremental = "grc",
-        node_decremental = "grm",
-      },
-    },
-
-    playground = {
-    enable = true,
-    disable = {},
-    updatetime = 25, -- Debounced time for highlighting nodes in the playground from source code
-    persist_queries = false, -- Whether the query persists across vim sessions
-    keybindings = {
-        toggle_query_editor = 'o',
-        toggle_hl_groups = 'i',
-        toggle_injected_languages = 't',
-        toggle_anonymous_nodes = 'a',
-        toggle_language_display = 'I',
-        focus_language = 'f',
-        unfocus_language = 'F',
-        update = 'R',
-        goto_node = '<cr>',
-        show_help = '?',
-        },
-    }
-}
-EOF
 
 
