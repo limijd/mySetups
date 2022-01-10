@@ -146,6 +146,15 @@ set path = (/home/wli/install/x86_64@rh7/gcc-7.5.0/bin $path)
 setenv CC /home/wli/install/x86_64@rh7/gcc-7.5.0/bin/gcc
 setenv CXX /home/wli/install/x86_64@rh7/gcc-7.5.0/bin/g++
 setenv LDFLAGS "-Wl,-rpath,/home/wli/install/x86_64@rh7/gcc-7.5.0/lib64:XORIGIN ${LDFLAGS}"
+setenv CFLAGS " -fPIC "
+setenv CXXFLAGS " -fPIC "
+
+set path = (/home/wli/install/x86_64@rh7/openssl-1.1.1l/bin $path)
+setenv LDFLAGS "-L/home/wli/install/x86_64@rh7/openssl-1.1.1l/lib ${LDFLAGS}"
+setenv CFLAGS "-I/home/wli/install/x86_64@rh7/openssl-1.1.1l/include ${CFLAGS}"
+setenv CXXFLAGS "-I/home/wli/install/x86_64@rh7/openssl-1.1.1l/include ${CXXFLAGS}"
+
+set path = (/home/wli/install/x86_64@rh7/python-3.10.1/bin $path)
 
 set path = (/home/wli/install/x86_64@rh7/llvm-10.0.1/bin $path)
 set path = (/home/wli/install/x86_64@rh7/nodejs-17.3.0/bin $path)
