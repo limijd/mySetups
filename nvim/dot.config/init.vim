@@ -22,7 +22,9 @@ filetype plugin on
 syntax on 
 set nu
 
-colorscheme torte
+let g:uname = system("uname")
+
+"colorscheme torte
 "let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 "set termguicolors
 
@@ -32,15 +34,20 @@ let g:w_which_ctags = system("which ctags")
 " solution now.
 let g:w_is_ctags_installed = 1
 
+if g:uname == "Darwin\n"
+	let g:coc_node_path = '/usr/local/bin/node'
+else
+	let g:coc_node_path = '/home/wli/install/x86_64@rh7/nodejs-17.3.0/bin/node'
+endif
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " vim-plug managed plugins: vim-plug,
 " 1. Downlaod https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 " 2. Then put plug.vim into ~/.vim/autoload
 " 3. start vim. run: PlugUpdate
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-call plug#begin('/home/wli/.config/nvim/plugged')
+call plug#begin('~/.config/nvim/plugged')
 
-	let g:coc_node_path = '/home/wli/install/x86_64@rh7/nodejs-17.3.0/bin/node'
     "Plug 'neoclide/coc.nvim', {'branch': 'release'}
     "Plug 'neoclide/coc.nvim'
     Plug 'neoclide/coc.nvim', { 'branch': 'master', 'do': 'yarn install --frozen-lockfile' }
