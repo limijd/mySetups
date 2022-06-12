@@ -165,5 +165,5 @@ setenv CLASSPATH /usr/local/Cellar/antlr/4.9.2/antlr-4.9.2-complete.jar:.
 
 #source $HOME/.cargo/env
 
-echo "--- Done."
+echo "--- Done. -"
 
