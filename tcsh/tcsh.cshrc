@@ -111,9 +111,10 @@ if ( $my_os == 'Darwin' ) then
     # brew installations
     set path = (/usr/local/Cellar/universal-ctags/HEAD-dfa2ebf/bin $path)
     #set path = (/usr/local/Cellar/mysql/8.0.22/bin/ $path)
-    set path = (/usr/local/Cellar/git/2.29.2/bin $path)
+    set path = (/usr/local/Cellar/git/2.34.1/bin $path)
     #set path = (/usr/local/opt/python@3.8/bin $path)
     set path = (/usr/local/opt/python@3.9/bin $path)
+    set path = (/Users/wli/install/x86_64@darwin/llvm-13.0.0/bin $path)
 
     #rust installations
     set path = ($HOME/.cargo/bin $path)
