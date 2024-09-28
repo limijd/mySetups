@@ -13,6 +13,7 @@ echo "--- General settings for tcsh";
 set prompt='%B%T%b@%m %/ %#.%?\% '
 set autolist #make complete even better
 bindkey -v
+setenv EDITOR vi
 
 #Completes
 complete setenv     'p/1/e/'
