@@ -132,6 +132,9 @@ if ( $my_os == 'Darwin' ) then
 
 endif #endof: if $my_os == 'Darwin'
     
+if ( $my_os/$my_arch == 'Linux/aarch64' ) then
+    echo "--- Setting up for Linux/aarch64"
+endif
 
 if ( -e ${HOME}/.cshrc.local ) then
     echo "--- source ${HOME}/.cshrc.local"
