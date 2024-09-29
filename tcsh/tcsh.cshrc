@@ -14,6 +14,7 @@ set prompt='%B%T%b@%m %/ %#.%?\% '
 set autolist #make complete even better
 bindkey -v
 setenv EDITOR vi
+setenv LDFLAGS
 
 #Completes
 complete setenv     'p/1/e/'
@@ -75,6 +76,10 @@ alias checkpath     'foreach d ($path)\
                 
 alias echoarr   parr
 
+if ( -x `which nvim` ) then
+    alias vim nvim
+    alias vi nvim
+endif
 
 #PATHs
 set path = (/usr/local/bin /usr/local/sbin /sbin /bin /usr/bin/ /usr/sbin )
@@ -88,7 +93,6 @@ if ( $my_os == 'GNU/Linux' ) then
     checkpath
 endif
 
-setenv LDFLAGS
 if ( $my_os == 'Darwin' ) then
     set path = (/usr/local/bin /sbin /bin /usr/bin/ /usr/sbin )
     echo "--- Specific setting for $my_os";
