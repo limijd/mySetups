@@ -90,41 +90,13 @@ endif
 
 setenv LDFLAGS
 if ( $my_os == 'Darwin' ) then
+    set path = (/usr/local/bin /sbin /bin /usr/bin/ /usr/sbin )
     echo "--- Specific setting for $my_os";
 
-    # /usr/local/opt installations
-    set path = (/usr/local/opt/binutils/bin $path)
-    set path = (/usr/local/opt/google_tts $path)
-    set path = (/usr/local/opt/ankiLearnChinese $path)
-    set path = (/usr/local/opt/myChineseData/bin $path)
-    set path = (/usr/local/opt/openjdk/bin $path)
-
-    setenv PATH /usr/local/opt/qt/bin:$PATH
-    setenv LDFLAGS -L/usr/local/opt/qt/lib;
-    setenv CPPFLAGS -I/usr/local/opt/qt/include;
-    setenv PKG_CONFIG_PATH /usr/local/opt/qt/lib/pkgconfig;
-
-    # brew installations
-    set path = (/usr/local/Cellar/universal-ctags/HEAD-dfa2ebf/bin $path)
-    #set path = (/usr/local/Cellar/mysql/8.0.22/bin/ $path)
-    set path = (/usr/local/Cellar/git/2.34.1/bin $path)
-    #set path = (/usr/local/opt/python@3.8/bin $path)
-    set path = (/usr/local/opt/python@3.9/bin $path)
-    set path = (/Users/wli/install/x86_64@darwin/llvm-13.0.0/bin $path)
-
-    #rust installations
-    set path = ($HOME/.cargo/bin $path)
-    
-    #ensure right python on Mac
-    if ( `which pip2` != /usr/local/bin/pip2) echo "Warning! Unexpected pip2 at `which pip2`"
-    #if ( `which pip3` != /usr/local/bin/pip3) echo "Warning! Unexpected pip3 at `which pip3`"
-    if ( `which python2` != /usr/local/bin/python2 ) echo "Warning! Unexpected python2 at `which python2`"
-    #if ( `which python3` != /usr/local/bin/python3 ) echo "Warning! Unexpected python3 at `which python3`"
-    #if ( `which python3.8` != /usr/local/bin/python3.8 ) echo "Warning! Unexpected python3.8 at `which python3.8`"
-    if ( `which python2.7` != /usr/local/bin/python2.7 ) echo "Warning! Unexpected python2.7 at `which python2.7`"
+    # Homebrew and it's installed packages
+    set path = (/opt/homebrew/bin $path)
 
     checkpath
-
 endif #endof: if $my_os == 'Darwin'
     
 if ( $my_os/$my_arch == 'Linux/aarch64' ) then
