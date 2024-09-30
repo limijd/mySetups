@@ -81,10 +81,7 @@ if ( -x `which nvim` ) then
     alias vi nvim
 endif
 
-#PATHs
 set path = (/usr/local/bin /usr/local/sbin /sbin /bin /usr/bin/ /usr/sbin )
-
-#platform specific
 
 if ( $my_os == 'GNU/Linux' ) then
     echo "--- Specific setting for $my_os";
@@ -93,27 +90,29 @@ if ( $my_os == 'GNU/Linux' ) then
     checkpath
 endif
 
-if ( $my_os == 'Darwin' ) then
-    set path = (/usr/local/bin /sbin /bin /usr/bin/ /usr/sbin )
-    echo "--- Specific setting for $my_os";
+if ( $my_os/$my_arch == 'Darwin/arm' ) then
+    echo "--- Specific setting for $my_os/$my_arch";
+    alias ls "ls --color" 
 
+    set path = (/usr/local/bin /sbin /bin /usr/bin/ /usr/sbin )
     # Homebrew and it's installed packages
     set path = (/opt/homebrew/bin $path)
+    # built and installed by nvim-telescope/telescope-fzf-native.nvim
     set path = (/opt/homebrew/opt/fzf/bin $path)
 
     checkpath
-endif #endof: if $my_os == 'Darwin'
+endif #endof: if $my_os/$my_arch == 'Darwin/arm'
     
 if ( $my_os/$my_arch == 'Linux/aarch64' ) then
     echo "--- Setting up for Linux/aarch64"
 endif
 
 if ( -e ${HOME}/.cshrc.local ) then
-    echo "--- source ${HOME}/.cshrc.local"
+    echo "--- Sourcing ${HOME}/.cshrc.local"
     source ${HOME}/.cshrc.local
 endif
 
 checkpath
 
-echo "--- Done. -"
+echo "--- Done. "
 
