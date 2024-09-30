@@ -1,4 +1,4 @@
-# needed for satisfy lua-LSP
+-- needed for satisfy lua-LSP
 _G.vim          = vim
 
 local home_dir  = os.getenv("HOME")
@@ -155,14 +155,51 @@ require("lazy").setup({
             vim.api.nvim_set_keymap('n', 'gi', '<Plug>(coc-implementation)', { noremap = false, silent = true })
             vim.api.nvim_set_keymap('n', 'gr', '<Plug>(coc-references)', { noremap = false, silent = true })
             vim.api.nvim_set_keymap('n', 'K', ":call CocAction('doHover')<CR>", { noremap = true, silent = true })
+
+            vim.api.nvim_set_keymap('x', "<leader>f", "<Plug>(coc-format-selected)", { noremap = false, silent = true })
+            vim.api.nvim_set_keymap('n', "<leader>f", "<Plug>(coc-format-selected)", { noremap = false, silent = true })
         end
 
     },
+    -------------------------------------------------------------------------------
+    --- Plugin: telescope.nvim
+    ---
+    --- 1. Fuzzy file finder
+    --- 2. live grep/search (ripgrep is recommended)
+    ---     sudo apt-get install ripgrep
+    ---     brew install ripgrep
+    --- 3. buffer/tag searching
+    --- 4. git integration
+    --- 5. preview
+    ---
+    --- * make sure telescope-fzf-native.vim  build successfully:
+    ---     cd ~/.local/share/nvim/lazy/telescope.nvim/
+    ---     make -f Makefile
+    -------------------------------------------------------------------------------
+    {
+        'nvim-telescope/telescope.nvim',
+        dependencies = { 'nvim-lua/plenary.nvim',
+            { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+        },
+        config = function()
+            require('telescope').setup {
+            }
 
+            vim.api.nvim_set_keymap('n', "<leader>rg", ':lua require("telescope.builtin").live_grep()<CR>',
+                { noremap = false, silent = true })
+            vim.api.nvim_set_keymap('n', "<leader>fh", ':lua require("telescope.builtin").help_tags()<CR>',
+                { noremap = false, silent = true })
+
+            require("telescope").load_extension("fzf")
+        end,
+        -- if  add below line, Telescope will not be loaded by default until do :Telescope
+        -- cmd = "Telescope",
+    },
 }) -- end of require("Lazy').setup
 
 -------------------------------------------------------------------------------
---- Install coc extensions manually
+--- Install coc extensions manually, call install_coc_exts() in nvim.
+---     :lua install_coc_exts() 
 -------------------------------------------------------------------------------
 function _G.install_coc_exts()
     local exts = {

@@ -99,6 +99,7 @@ if ( $my_os == 'Darwin' ) then
 
     # Homebrew and it's installed packages
     set path = (/opt/homebrew/bin $path)
+    set path = (/opt/homebrew/opt/fzf/bin $path)
 
     checkpath
 endif #endof: if $my_os == 'Darwin'
