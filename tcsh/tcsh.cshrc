@@ -2,6 +2,7 @@
 
 set my_os=`uname -s`
 set my_arch=`uname -p`
+set my_kernel=`uname -r`
 
 if(! $?prompt) then
     exit 0
