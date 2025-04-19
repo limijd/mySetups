@@ -42,6 +42,24 @@ else
         print('Error: Unable to write to ' .. init_luac)
     end
 end
+
+function CloseFloatingAndStartGDB(executable, workdir)
+    local original_dir = vim.fn.getcwd()
+    vim.cmd('cd ' .. workdir)
+    
+    -- Check if current window is floating and close it
+    local config = vim.api.nvim_win_get_config(0)
+    if config.relative ~= '' then
+        vim.api.nvim_win_close(0, true)
+    end
+
+    -- setup layout for vim-gdb
+    vim.cmd("only | vnew")
+    -- start gdb with the provided executable and arguments
+    vim.cmd("GdbStart gdb --args " .. executable)
+
+    vim.cmd('cd ' .. original_dir)
+end
 -------------------------------------------------------------------------------
 --- Diagnostics
 -------------------------------------------------------------------------------

@@ -44,10 +44,12 @@ alias zconf='nvim ~/.zshrc'
 alias ll='ls -l '
 alias la='ls -a -l'
 alias sl='ls -lrs'
+alias tl="ls -l -t -r "
 alias cls='(clear;pwd;ll;ls)'
 alias gitlog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
 alias his='history'
 alias tn='tmux rename-window `basename $PWD`'
+alias vi='nvim'
 
 #------------------------------------------------------------------------------
 # functions
@@ -89,7 +91,45 @@ typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 #------------------------------------------------------------------------------
 if [[ "$my_os_info" == Ubuntu\ 24* ]]; then
     echo "-- Setting PATH for $my_os_info"
+    path=(/home/wli/install/x86_64@ubt24/nvim-0.11/bin $path)
     path=(/home/wli/install/x86_64@ubt24/Python-3.13.0/bin $path)
+    path=(/home/wli/sandbox/github/myScripts $path)
+fi
+
+#------------------------------------------------------------------------------
+# TERM inside nvim
+#------------------------------------------------------------------------------
+if [[ -n $NVIM_LISTEN_ADDRESS ]]; then
+    #avoid open nested vim/nvim inside toggleterm
+    echo "Info: setting nvim/vim/vi to nvr because this is the shell inside neovim"
+    alias nvim="nvr --remote-tab-silent"
+    alias vim="nvr --remote-tab-silent"
+    alias vi="nvr --remote-tab-silent"
+
+    alias tmux='Nested tmux is not supposed run in shell inside neovim'
+
+    ####################################################################################################
+    # In toggleterm, when we do nvgdb, I want the floatting window be closed and 
+    # then start vim-gdb in 'only|vnew' mode. This looks clean.
+    #
+    # FILE: start_vimgdb_close_toggleterm.sh
+    #
+    # #!/bin/tcsh
+    # set wordir = $1
+    # shift
+    # set args = "$*"
+    # cd $wordir
+    # nvr --remote-tab-silent -c "lua CloseFloatingAndStartGdb('$args', '$workdir'")
+    #
+    # FILE: init.lua
+    #
+    # function CloseFloatingAndStartGDB(executable, workdir)
+    # ....
+    # endfunction
+    #
+    ####################################################################################################
+
+    alias nvgdb='update_nvim_path; ${HOME}/install/scripts/start_vimgdb_close_toggleterm.sh `pwd` \!*'
 fi
 
 #------------------------------------------------------------------------------
