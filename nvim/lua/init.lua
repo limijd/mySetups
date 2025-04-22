@@ -89,17 +89,25 @@ end
 vim.env.NVIM_LISTEN_ADDRESS = vim.fn.stdpath('data') .. '/nvim-server'
 
 -------------------------------------------------------------------------------
---- Essential
+--- Enviroments.
 -------------------------------------------------------------------------------
-
-vim.opt.tabstop = 4
-vim.opt.shiftwidth = 4
-vim.opt.expandtab = true
-vim.opt.smartindent = true
-vim.opt.number = true
-vim.opt.termguicolors = true
 vim.env.NVIM_TUI_ENABLE_TRUE_COLOR = 1
-vim.o.mouse = ''
+
+-------------------------------------------------------------------------------
+--- Options
+-------------------------------------------------------------------------------
+-- vim.opt.colorcolumn = '80'
+vim.opt.expandtab = true
+vim.opt.mouse = ''
+vim.opt.number = true
+-- vim.opt.relativenumber = true
+vim.opt.scrolloff = 8
+vim.opt.shiftwidth = 4
+vim.opt.signcolumn = 'yes'
+vim.opt.smartindent = true
+vim.opt.tabstop = 4
+vim.opt.termguicolors = true
+
 
 -------------------------------------------------------------------------------
 --- keymaps.
@@ -137,9 +145,88 @@ require("lazy").setup({
         end
     },
 
-    -------------------------------------------------------------------------------
-    --- Plugin: web-devicons
-    -------------------------------------------------------------------------------
+    {
+        'neovim/nvim-lspconfig',
+        config = function()
+            require('lspconfig').pyright.setup{
+                capabilities = capabilities,
+                settings = {
+                    python = {
+                        analysis = {
+                            typeCheckingMode = 'strict',
+                            autoSearchPaths = true,
+                            diagnosticMode = 'workspace',
+                        }
+                    }
+                }
+            }
+        end
+    },
+
+    {
+        'williamboman/mason.nvim',
+        config = function()
+            require('mason').setup {
+                ensure_installed = {'pyright'}
+            }
+        end
+    },
+
+    {
+        'williamboman/mason-lspconfig.nvim',
+        config = function()
+            require('mason-lspconfig').setup {
+                ensure_installed = {'pyright'}
+            }
+        end
+    },
+
+    -- Debugging
+    {
+        'mfussenegger/nvim-dap',
+        config = function()
+        end
+    },
+
+    {
+        'mfussenegger/nvim-dap-python',
+        config = function()
+        end
+    },
+
+    {
+        'stevearc/conform.nvim',
+        config = function()
+            require('conform').setup({
+                formatters_by_ft = {
+                    python = {'black'},
+                },
+                format_on_save = {
+                    timeout_ms = 500,
+                    lsp_fallback = true,
+                },
+            })
+        end
+    },
+
+    {
+        'nvim-tree/nvim-tree.lua',
+        config = function()
+            require('nvim-tree').setup()
+        end
+    },
+
+    {
+        'nvim-lualine/lualine.nvim',
+        config = function()
+            require('lualine').setup({
+                options = {theme = 'catppuccin'}
+            })
+        end
+    },
+
+    {'catppuccin/nvim', name = 'catppuccin'},
+
     {
         "nvim-tree/nvim-web-devicons",
         config = function()
@@ -149,6 +236,14 @@ require("lazy").setup({
         end
 
     },
+
+    {'folke/which-key.nvim'},
+
+    {'folke/trouble.nvim'},
+
+    {'windwp/nvim-autopairs'},
+
+    {'numToStr/Comment.nvim'},
 
     -------------------------------------------------------------------------------
     --- Plugin: coc.nvim
@@ -215,6 +310,23 @@ require("lazy").setup({
     },
 }) -- end of require("Lazy').setup
 
+vim.cmd.colorscheme('catppuccin-mocha')
+
+require('dap').adapters.python = {
+    type = 'executable',
+    command = 'python',
+    args = {'-m', 'debugpy.adapter'},
+}
+
+require('dap').configurations.python = {
+    {
+        type = 'python',
+        request = 'launch',
+        name = 'Launch file',
+        program = '${file}',
+        pythonPath = function() return 'python' end,
+    },
+}
 -------------------------------------------------------------------------------
 --- Install coc extensions manually, call install_coc_exts() in nvim.
 ---     :lua install_coc_exts() 

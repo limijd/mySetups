@@ -24,6 +24,8 @@ else
 fi
 bindkey -v
 
+export MY_BORG_REPO=${HOME}/disk-4t-b/snapshots/borg/backup-repo
+
 echo "========================================================================="
 echo "-- oh-my-zsh.sh loaded"
 echo "-- zsh ~/.zshrc $(date '+%F %T')"
@@ -91,9 +93,10 @@ typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 #------------------------------------------------------------------------------
 if [[ "$my_os_info" == Ubuntu\ 24* ]]; then
     echo "-- Setting PATH for $my_os_info"
-    path=(/home/wli/install/x86_64@ubt24/nvim-0.11/bin $path)
-    path=(/home/wli/install/x86_64@ubt24/Python-3.13.0/bin $path)
-    path=(/home/wli/sandbox/github/myScripts $path)
+    path=(${HOME}/.local/bin $path)
+    path=(${HOME}/install/x86_64@ubt24/nvim-0.11/bin $path)
+    path=(${HOME}/install/x86_64@ubt24/Python-3.13.0/bin $path)
+    path=(${HOME}/sandbox/github/myScripts $path)
 fi
 
 #------------------------------------------------------------------------------
