@@ -145,10 +145,12 @@ require("lazy").setup({
         end
     },
 
+    --- python native LSP client. (no longer use coc.nvim now).
     {
         'neovim/nvim-lspconfig',
         config = function()
-            require('lspconfig').pyright.setup{
+            --- C++
+            require('lspconfig').pyright.setup({
                 capabilities = capabilities,
                 settings = {
                     python = {
@@ -159,15 +161,36 @@ require("lazy").setup({
                         }
                     }
                 }
-            }
+            })
+
+            --- C++
+            require('lspconfig').clangd.setup({
+                capabilities = capabilities,
+                on_attach = on_attach,
+                cmd = {
+                    "clangd",
+                    "--background-index",
+                    "--clang-tidy",
+                    "--header-insertion=never",
+                },
+            })
         end
     },
 
+    --- manson package manager 
     {
         'williamboman/mason.nvim',
         config = function()
             require('mason').setup {
-                ensure_installed = {'pyright'}
+                --- use pyright LSP server
+                ensure_installed = {'pyright'},
+                ui = {
+                    icons = {
+                        package_installed = "✓",
+                        package_pending = "➜",
+                        package_uninstalled = "✗"
+                    }
+                }
             }
         end
     },
@@ -176,8 +199,40 @@ require("lazy").setup({
         'williamboman/mason-lspconfig.nvim',
         config = function()
             require('mason-lspconfig').setup {
-                ensure_installed = {'pyright'}
+                --- use pyright LSP server
+                ensure_installed = {
+                    'pyright',  -- python
+                    'clangd',   -- C++
+                },
+                automatic_installation = false
             }
+        end
+    },
+
+    {
+        'nvim-treesitter/nvim-treesitter',
+        config = function()
+        end
+    },
+
+    --- auto completion
+    {
+        'hrsh7th/nvim-cmp',
+        config = function()
+        end
+    },
+
+    -- LSP completion source
+    {
+        'hrsh7th/cmp-nvim-lsp',
+        config = function()
+        end
+    },
+
+    -- Better diagnostic
+    {
+        'folke/trouble.nvim',
+        config = function()
         end
     },
 
@@ -185,6 +240,20 @@ require("lazy").setup({
     {
         'mfussenegger/nvim-dap',
         config = function()
+            require('dap').adapters.python = ({
+                type = 'executable',
+                command = 'python',
+                args = {'-m', 'debugpy.adapter'},
+            })
+            require('dap').configurations.python = ({
+                {
+                    type = 'python',
+                    request = 'launch',
+                    name = 'Launch file',
+                    program = '${file}',
+                    pythonPath = function() return 'python' end,
+                },
+            })
         end
     },
 
@@ -194,6 +263,7 @@ require("lazy").setup({
         end
     },
 
+    --- formater
     {
         'stevearc/conform.nvim',
         config = function()
@@ -246,35 +316,6 @@ require("lazy").setup({
     {'numToStr/Comment.nvim'},
 
     -------------------------------------------------------------------------------
-    --- Plugin: coc.nvim
-    ---
-    --- 1. lazy.vim install and load coc.nvim
-    --- 2. compile coc.nvim  (important)
-    ---     %> cd ~/.local/share/nvim/lazy/coc.nvim
-    ---     %> npm ci
-    --- 3.  install coc extensiosn
-    ---     :CocInstall <ext>
-    ---     or
-    ---     :lua install_coc_exts()
-    -------------------------------------------------------------------------------
-    {
-        "neoclide/coc.nvim",
-        event = { 'BufReadPre', 'BufNewFile' },
-        -- coc.nvim will only be loaded when below kinds of files are opened.
-        ft = { 'cpp', 'c', 'lua', 'zsh', 'rust', 'go', 'java', 'python', 'bash', 'make', 'verilog', 'systemverilog', 'tcsh', 'markdown' },
-        config = function()
-            vim.api.nvim_set_keymap('n', 'gd', '<Plug>(coc-definition)', { noremap = false, silent = true })
-            vim.api.nvim_set_keymap('n', 'gt', '<Plug>(coc-type-definition)', { noremap = false, silent = true })
-            vim.api.nvim_set_keymap('n', 'gi', '<Plug>(coc-implementation)', { noremap = false, silent = true })
-            vim.api.nvim_set_keymap('n', 'gr', '<Plug>(coc-references)', { noremap = false, silent = true })
-            vim.api.nvim_set_keymap('n', 'K', ":call CocAction('doHover')<CR>", { noremap = true, silent = true })
-
-            vim.api.nvim_set_keymap('x', "<leader>f", "<Plug>(coc-format-selected)", { noremap = false, silent = true })
-            vim.api.nvim_set_keymap('n', "<leader>f", "<Plug>(coc-format-selected)", { noremap = false, silent = true })
-        end
-
-    },
-    -------------------------------------------------------------------------------
     --- Plugin: telescope.nvim
     ---
     --- 1. Fuzzy file finder
@@ -312,53 +353,22 @@ require("lazy").setup({
 
 vim.cmd.colorscheme('catppuccin-mocha')
 
-require('dap').adapters.python = {
-    type = 'executable',
-    command = 'python',
-    args = {'-m', 'debugpy.adapter'},
-}
-
-require('dap').configurations.python = {
-    {
-        type = 'python',
-        request = 'launch',
-        name = 'Launch file',
-        program = '${file}',
-        pythonPath = function() return 'python' end,
-    },
-}
 -------------------------------------------------------------------------------
---- Install coc extensions manually, call install_coc_exts() in nvim.
----     :lua install_coc_exts() 
+--- LSP Configuration
 -------------------------------------------------------------------------------
-function _G.install_coc_exts()
-    local exts = {
-        'coc-clangd', -- clangd need to be installed separately
-        'coc-cmake',
-        'coc-css',
-        'coc-fzf-preview',
-        'coc-git',
-        'coc-go',
-        'coc-html',
-        'coc-java',
-        'coc-json',
-        'coc-lists',
-        'coc-lua',         -- LSP is optional
-        'coc-markdownlint',
-        'coc-marketplace', -- CocList marketplace to list all available exts.
-        'coc-pairs',       -- installed paired characters automatically {}, [], (), ..etc.
-        'coc-prettier',    -- reformat javascript, typescript, css, and json
-        'coc-python',
-        'coc-sh',
-        'coc-snippets',
-        'coc-tsserver', -- typescript and javscript
-        'coc-xml',
-        'coc-yaml',
-    }
+-- Common on_attach
+local on_attach = function(client, bufnr)
+  -- Keymaps
+  local map = function(mode, lhs, rhs, opts)
+    vim.keymap.set(mode, lhs, rhs, vim.tbl_extend('force', { buffer = bufnr }, opts or {}))
+  end
 
-    for _, ext in ipairs(exts) do
-        print("Installing: " .. ext)
-        vim.cmd("CocInstall -sync " .. ext)
-        print("Finished installed: " .. ext)
-    end
+  map('n', 'gd', vim.lsp.buf.definition)
+  map('n', 'gr', vim.lsp.buf.references)
+  map('n', 'K', vim.lsp.buf.hover)
+  map('n', '<leader>rn', vim.lsp.buf.rename)
+  map('n', '<leader>ca', vim.lsp.buf.code_action)
+  map('n', '<leader>d', '<cmd>TroubleToggle document_diagnostics<CR>')
 end
+
+
