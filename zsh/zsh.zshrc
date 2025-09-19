@@ -52,6 +52,7 @@ alias gitlog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Cres
 alias his='history'
 alias tn='tmux rename-window `basename $PWD`'
 alias vi='nvim'
+alias autoclick='(while true; do xdotool click 1; sleep 10; done) '
 
 #------------------------------------------------------------------------------
 # functions
@@ -95,8 +96,9 @@ if [[ "$my_os_info" == Ubuntu\ 24* ]]; then
     echo "-- Setting PATH for $my_os_info"
     path=(${HOME}/.local/bin $path)
     path=(${HOME}/install/x86_64@ubt24/nvim-0.11/bin $path)
-    path=(${HOME}/install/x86_64@ubt24/Python-3.13.0/bin $path)
+    #path=(${HOME}/install/x86_64@ubt24/Python-3.13.0/bin $path)
     path=(${HOME}/sandbox/github/myScripts $path)
+    path=(${HOME}/install/x86_64@ubt24/anki-launcher-25.07.5-linux $path)
 fi
 
 #------------------------------------------------------------------------------
@@ -136,8 +138,14 @@ if [[ -n $NVIM_LISTEN_ADDRESS ]]; then
 fi
 
 #------------------------------------------------------------------------------
+# Source .zshrc.local for local specific settings.
+#------------------------------------------------------------------------------
+[[ ! -f ~/.zshrc.local ]] || source ~/.zshrc.local
+
+#------------------------------------------------------------------------------
 # Done.
 #------------------------------------------------------------------------------
 checkpath
+
 
 echo "-- Done."

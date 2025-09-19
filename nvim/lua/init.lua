@@ -112,6 +112,7 @@ vim.opt.termguicolors = true
 -------------------------------------------------------------------------------
 --- keymaps.
 -------------------------------------------------------------------------------
+vim.keymap.set('n', 'K', vim.diagnostic.open_float, { noremap=true, silent=true })
 
 -------------------------------------------------------------------------------
 --- Bootstrap lazy.nvim
@@ -230,10 +231,11 @@ require("lazy").setup({
     },
 
     -- Better diagnostic
+    -- I don't know how to use it - wli.
     {
-        'folke/trouble.nvim',
+        'folke/trouble.nvim', 
         config = function()
-        end
+        end,
     },
 
     -- Debugging
@@ -297,6 +299,7 @@ require("lazy").setup({
 
     {'catppuccin/nvim', name = 'catppuccin'},
 
+    -- Please don't forget to download and install nerd fonts 
     {
         "nvim-tree/nvim-web-devicons",
         config = function()
@@ -309,7 +312,6 @@ require("lazy").setup({
 
     {'folke/which-key.nvim'},
 
-    {'folke/trouble.nvim'},
 
     {'windwp/nvim-autopairs'},
 
