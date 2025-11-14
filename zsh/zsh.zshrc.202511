@@ -9,6 +9,7 @@ export TZ=${TZ:-UTC}
 zmodload zsh/datetime 2>/dev/null
 zmodload zsh/stat 2>/dev/null
 
+typeset -gF ZCFG_LOAD_STARTED_AT=$EPOCHREALTIME
 ZCFG_STARTED_AT=$(strftime "%F %T" "$EPOCHSECONDS")
 echo "-- zsh ~/.zshrc ${ZCFG_STARTED_AT}"
 
@@ -92,17 +93,81 @@ setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS CORRECT \
 bindkey -v
 set -o emacs # vi insert with Emacs keys for search
 
-autoload -Uz colors compinit promptinit
+autoload -Uz colors compinit promptinit vcs_info add-zsh-hook
 colors
 ZSH_CACHE_DIR=${XDG_CACHE_HOME:-$HOME/.cache}/zsh
 mkdir -p "$ZSH_CACHE_DIR"
 compinit -d "${ZSH_CACHE_DIR}/zcompdump"
 promptinit
-if [[ -n ${functions[prompt_pure_setup]} ]]; then
-  prompt pure
-else
-  PROMPT='%F{cyan}%n@%m%f %F{yellow}%1~%f %# '
-fi
+
+#------------------------------------------------------------------------------
+# Prompt: informative, cross-platform, VCS-aware
+#------------------------------------------------------------------------------
+setopt PROMPT_SUBST
+zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:*' check-for-changes true
+zstyle ':vcs_info:git:*' stagedstr ' +'
+zstyle ':vcs_info:git:*' unstagedstr ' *'
+zstyle ':vcs_info:git:*' formats '%F{magenta}git:%b%f%F{yellow}%u%f%F{red}%c%f'
+zstyle ':vcs_info:git:*' actionformats '%F{magenta}git:%b|%a%f%F{yellow}%u%f%F{red}%c%f'
+
+typeset -gF ZCFG_CMD_STARTED_AT=0
+
+zcfg_prompt_preexec() {
+  ZCFG_CMD_STARTED_AT=$EPOCHREALTIME
+}
+
+zcfg_prompt_precmd() {
+  local exit_status=$?
+  vcs_info
+
+  local status_segment
+  if (( exit_status == 0 )); then
+    status_segment="%F{42}[ok]%f"
+  else
+    status_segment="%F{196}[${exit_status}]%f"
+  fi
+
+  local user_color
+  if (( EUID == 0 )); then
+    user_color="%F{196}"
+  elif [[ -n $SSH_CONNECTION ]]; then
+    user_color="%F{214}"
+  else
+    user_color="%F{45}"
+  fi
+
+  local host_ref=${ZCFG[host]:-$(hostname -s 2>/dev/null)}
+  local user_host="${user_color}%n@${host_ref}%f"
+  local cwd="%F{220}%d%f"
+  local git_segment=""
+  [[ -n ${vcs_info_msg_0_} ]] && git_segment=" ${vcs_info_msg_0_}"
+
+  local duration_segment=""
+  if (( ZCFG_CMD_STARTED_AT > 0 )); then
+    local elapsed=$(( EPOCHREALTIME - ZCFG_CMD_STARTED_AT ))
+    if (( elapsed >= 1 )); then
+      duration_segment=$(printf '%.2fs' "$elapsed")
+    elif (( elapsed*1000 >= 100 )); then
+      local elapsed_ms=$(( (EPOCHREALTIME - ZCFG_CMD_STARTED_AT) * 1000 ))
+      duration_segment=$(printf '%.0fms' "$elapsed_ms")
+    fi
+  fi
+
+  local time_segment="%F{244}%*%f"
+  if [[ -n $duration_segment ]]; then
+    RPROMPT="%F{244}${duration_segment}%f ${time_segment}"
+  else
+    RPROMPT="${time_segment}"
+  fi
+
+  local symbol='%(!.#.$)'
+  PROMPT="${status_segment} ${user_host} ${cwd}${git_segment}"$'\n'"%F{111}${symbol}%f "
+  ZCFG_CMD_STARTED_AT=0
+}
+
+add-zsh-hook precmd zcfg_prompt_precmd
+add-zsh-hook preexec zcfg_prompt_preexec
 
 #------------------------------------------------------------------------------
 # PATH (base + platform tweaks)
@@ -211,3 +276,9 @@ esac
 # Custom local overrides
 #------------------------------------------------------------------------------
 [[ -r ~/.zshrc.local ]] && source ~/.zshrc.local
+
+if (( ${+ZCFG_LOAD_STARTED_AT} )); then
+  typeset -F ZCFG_LOAD_ELAPSED
+  ZCFG_LOAD_ELAPSED=$(( EPOCHREALTIME - ZCFG_LOAD_STARTED_AT ))
+  printf -- "-- .zshrc ready in %.2fs\n" "$ZCFG_LOAD_ELAPSED"
+fi
