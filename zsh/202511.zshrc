@@ -1,5 +1,6 @@
 #------------------------------------------------------------------------------
 # Ultimate zsh bootstrap (cross-platform, tidy, extensible)
+# Every section is intentionally modular so you can comment blocks on/off per host.
 #------------------------------------------------------------------------------
 
 export LANG=${LANG:-en_US.UTF-8}
@@ -9,12 +10,13 @@ export TZ=${TZ:-UTC}
 zmodload zsh/datetime 2>/dev/null
 zmodload zsh/stat 2>/dev/null
 
+# Record load time at the first possible moment so we can report initialization cost.
 typeset -gF ZCFG_LOAD_STARTED_AT=$EPOCHREALTIME
 ZCFG_STARTED_AT=$(strftime "%F %T" "$EPOCHSECONDS")
 echo "-- zsh ~/.zshrc ${ZCFG_STARTED_AT}"
 
 #------------------------------------------------------------------------------
-# Host + platform facts
+# Host + platform facts (used for conditionals throughout the file)
 #------------------------------------------------------------------------------
 typeset -gA ZCFG
 ZCFG[os]=$(uname -s)
@@ -42,6 +44,7 @@ fi
 
 #------------------------------------------------------------------------------
 # Helpers
+# _path_prepend/_path_append let us manipulate $PATH reliably without duplicates.
 #------------------------------------------------------------------------------
 _path_prepend() {
   local dir
@@ -63,6 +66,7 @@ _have() { command -v "$1" >/dev/null 2>&1; }
 
 #------------------------------------------------------------------------------
 # Editor / pager / history
+# Choose editor dynamically, make history massive, and enable interactive niceties.
 #------------------------------------------------------------------------------
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR=${EDITOR:-vim}
@@ -102,9 +106,10 @@ promptinit
 
 #------------------------------------------------------------------------------
 # Prompt: informative, cross-platform, VCS-aware
+# Uses built-in vcs_info so no external theme dependency is required.
 #------------------------------------------------------------------------------
 setopt PROMPT_SUBST
-zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:*' enable git        # we only need git but more can be enabled later
 zstyle ':vcs_info:*' check-for-changes true
 zstyle ':vcs_info:git:*' stagedstr ' +'
 zstyle ':vcs_info:git:*' unstagedstr ' *'
@@ -121,6 +126,7 @@ zcfg_prompt_precmd() {
   local exit_status=$?
   vcs_info
 
+  # Left prompt shows command status, user@host, cwd, and git snapshot.
   local status_segment
   if (( exit_status == 0 )); then
     status_segment="%F{42}[ok]%f"
@@ -143,6 +149,7 @@ zcfg_prompt_precmd() {
   local git_segment=""
   [[ -n ${vcs_info_msg_0_} ]] && git_segment=" ${vcs_info_msg_0_}"
 
+  # Display right prompt time + duration for commands slower than 100ms.
   local duration_segment=""
   if (( ZCFG_CMD_STARTED_AT > 0 )); then
     local elapsed=$(( EPOCHREALTIME - ZCFG_CMD_STARTED_AT ))
@@ -161,7 +168,7 @@ zcfg_prompt_precmd() {
     RPROMPT="${time_segment}"
   fi
 
-  local symbol='%(!.#.$)'
+  local symbol='%(!.#.$)'  # show # for root shells
   PROMPT="${status_segment} ${user_host} ${cwd}${git_segment}"$'\n'"%F{111}${symbol}%f "
   ZCFG_CMD_STARTED_AT=0
 }
@@ -171,6 +178,7 @@ add-zsh-hook preexec zcfg_prompt_preexec
 
 #------------------------------------------------------------------------------
 # PATH (base + platform tweaks)
+# Start with user-local bin dirs, then branch per platform/distro.
 #------------------------------------------------------------------------------
 _path_prepend "${HOME}/bin" "${HOME}/.local/bin"
 
@@ -200,7 +208,7 @@ if [[ -f /etc/os-release ]]; then
 fi
 
 #------------------------------------------------------------------------------
-# Aliases
+# Aliases (quality-of-life wrappers; safe to extend per host)
 #------------------------------------------------------------------------------
 alias reload='source ~/.zshrc'
 alias zconf='${EDITOR:-nvim} ~/.zshrc'
@@ -215,7 +223,7 @@ alias tn='tmux rename-window "$(basename "$PWD")"'
 alias gitlog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
 
 #------------------------------------------------------------------------------
-# Functions
+# Functions (diagnostics + directory helpers)
 #------------------------------------------------------------------------------
 showpath() {
   for p in ${(s/:/)PATH}; do
@@ -244,21 +252,14 @@ up() {
 }
 
 #------------------------------------------------------------------------------
-# Tooling bootstrap (Oh My Zsh / completions / local scripts)
+# Tooling bootstrap (lightweight hooks for external helpers)
 #------------------------------------------------------------------------------
-if [[ -d "${HOME}/.oh-my-zsh" ]]; then
-  export ZSH="${HOME}/.oh-my-zsh"
-  ZSH_THEME="robbyrussell"
-  plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
-  source "${ZSH}/oh-my-zsh.sh"
-fi
-
 if _have direnv; then
   eval "$(direnv hook zsh)"
 fi
 
 #------------------------------------------------------------------------------
-# Platform specific niceties
+# Platform specific niceties (commands or env that only make sense per OS)
 #------------------------------------------------------------------------------
 case ${ZCFG[platform]} in
   macos)
@@ -273,12 +274,13 @@ case ${ZCFG[platform]} in
 esac
 
 #------------------------------------------------------------------------------
-# Custom local overrides
+# Custom local overrides (per-machine secrets or exports)
 #------------------------------------------------------------------------------
 [[ -r ~/.zshrc.local ]] && source ~/.zshrc.local
 
 if (( ${+ZCFG_LOAD_STARTED_AT} )); then
   typeset -F ZCFG_LOAD_ELAPSED
   ZCFG_LOAD_ELAPSED=$(( EPOCHREALTIME - ZCFG_LOAD_STARTED_AT ))
+  # Quick startup telemetry so slow changes are easy to notice.
   printf -- "-- .zshrc ready in %.2fs\n" "$ZCFG_LOAD_ELAPSED"
 fi
