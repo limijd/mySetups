@@ -13,7 +13,7 @@ zmodload zsh/stat 2>/dev/null
 # Record load time at the first possible moment so we can report initialization cost.
 typeset -gF ZCFG_LOAD_STARTED_AT=$EPOCHREALTIME
 ZCFG_STARTED_AT=$(strftime "%F %T" "$EPOCHSECONDS")
-echo "-- zsh ~/.zshrc ${ZCFG_STARTED_AT}"
+echo "[Info] zsh ~/.zshrc ${ZCFG_STARTED_AT}"
 
 #------------------------------------------------------------------------------
 # Host + platform facts (used for conditionals throughout the file)
@@ -282,5 +282,5 @@ if (( ${+ZCFG_LOAD_STARTED_AT} )); then
   typeset -F ZCFG_LOAD_ELAPSED
   ZCFG_LOAD_ELAPSED=$(( EPOCHREALTIME - ZCFG_LOAD_STARTED_AT ))
   # Quick startup telemetry so slow changes are easy to notice.
-  printf -- "-- .zshrc ready in %.2fs\n" "$ZCFG_LOAD_ELAPSED"
+  printf -- "[Info] .zshrc loaded in %.2fs\n" "$ZCFG_LOAD_ELAPSED"
 fi
