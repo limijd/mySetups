@@ -73,7 +73,6 @@ vim.env.NVIM_LISTEN_ADDRESS = vim.fn.stdpath('data') .. '/nvim-server'
 -------------------------------------------------------------------------------
 --- Essential
 -------------------------------------------------------------------------------
-
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
@@ -81,7 +80,7 @@ vim.opt.smartindent = true
 vim.opt.number = true
 vim.opt.termguicolors = true
 vim.env.NVIM_TUI_ENABLE_TRUE_COLOR = 1
-vim.o.mouse = ''
+vim.o.mouse = '' -- disable mouse in nvim
 
 -------------------------------------------------------------------------------
 --- keymaps.
@@ -103,6 +102,9 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-------------------------------------------------------------------------------
+--- Lazy plugins
+-------------------------------------------------------------------------------
 require("lazy").setup({
     -------------------------------------------------------------------------------
     --- Plugin: Onedark them.
