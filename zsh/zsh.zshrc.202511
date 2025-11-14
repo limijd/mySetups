@@ -1,74 +1,209 @@
 #------------------------------------------------------------------------------
-# basics
+# Ultimate zsh bootstrap (cross-platform, tidy, extensible)
 #------------------------------------------------------------------------------
-# Path to your Oh My Zsh installation.
-export LANG=en_US.UTF-8
-if [[ -n $SSH_CONNECTION ]]; then
-   export EDITOR='vim'
+
+export LANG=${LANG:-en_US.UTF-8}
+export LC_ALL=${LC_ALL:-$LANG}
+export TZ=${TZ:-UTC}
+
+zmodload zsh/datetime 2>/dev/null
+zmodload zsh/stat 2>/dev/null
+
+ZCFG_STARTED_AT=$(strftime "%F %T" "$EPOCHSECONDS")
+echo "-- zsh ~/.zshrc ${ZCFG_STARTED_AT}"
+
+#------------------------------------------------------------------------------
+# Host + platform facts
+#------------------------------------------------------------------------------
+typeset -gA ZCFG
+ZCFG[os]=$(uname -s)
+ZCFG[arch]=$(uname -m)
+ZCFG[kernel]=$(uname -r)
+ZCFG[host]=$(hostname -s 2>/dev/null)
+
+if [[ -f /etc/os-release ]]; then
+  source /etc/os-release
+  ZCFG[os_name]=${PRETTY_NAME:-$NAME}
 else
-   export EDITOR='nvim'
+  case ${ZCFG[os]} in
+    Darwin) ZCFG[os_name]="macOS $(sw_vers -productVersion 2>/dev/null)";;
+    *)      ZCFG[os_name]=${ZCFG[os]};;
+  esac
 fi
+
+if [[ ${ZCFG[kernel]} == *Microsoft* ]]; then
+  ZCFG[platform]="wsl"
+elif [[ ${ZCFG[os]} == Darwin ]]; then
+  ZCFG[platform]="macos"
+else
+  ZCFG[platform]="linux"
+fi
+
+#------------------------------------------------------------------------------
+# Helpers
+#------------------------------------------------------------------------------
+_path_prepend() {
+  local dir
+  for dir in "$@"; do
+    [[ -d $dir ]] || continue
+    path=($dir ${path:#$dir})
+  done
+}
+
+_path_append() {
+  local dir
+  for dir in "$@"; do
+    [[ -d $dir ]] || continue
+    path=(${path:#$dir} $dir)
+  done
+}
+
+_have() { command -v "$1" >/dev/null 2>&1; }
+
+#------------------------------------------------------------------------------
+# Editor / pager / history
+#------------------------------------------------------------------------------
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR=${EDITOR:-vim}
+else
+  if _have nvim; then
+    export EDITOR=nvim
+  elif _have vim; then
+    export EDITOR=vim
+  else
+    export EDITOR=vi
+  fi
+fi
+export VISUAL=$EDITOR
+export PAGER=${PAGER:-less}
+
+HISTFILE=${HISTFILE:-${HOME}/.zsh_history}
+HISTSIZE=200000
+SAVEHIST=$HISTSIZE
+setopt APPEND_HISTORY SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_SPACE \
+       EXTENDED_HISTORY INC_APPEND_HISTORY
+
+setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS AUTOCONFIRM CORRECT \
+       INTERACTIVE_COMMENTS LONG_LIST_JOBS NO_BEEP
+
+#------------------------------------------------------------------------------
+# Key bindings & completion
+#------------------------------------------------------------------------------
 bindkey -v
+set -o emacs # vi insert with Emacs keys for search
 
-echo "-- zsh ~/.zshrc $(date '+%F %T')"
+autoload -Uz colors compinit promptinit
+colors
+ZSH_CACHE_DIR=${XDG_CACHE_HOME:-$HOME/.cache}/zsh
+mkdir -p "$ZSH_CACHE_DIR"
+compinit -d "${ZSH_CACHE_DIR}/zcompdump"
+promptinit
+prompt pure 2>/dev/null || PROMPT='%F{cyan}%n@%m%f %F{yellow}%1~%f %# '
 
 #------------------------------------------------------------------------------
-# SHELL Context
+# PATH (base + platform tweaks)
 #------------------------------------------------------------------------------
-my_os=$(uname -s)
-my_arch=$(uname -p)
-my_kernel=$(uname -r)
+_path_prepend "${HOME}/bin" "${HOME}/.local/bin"
+
+case ${ZCFG[platform]} in
+  macos)
+    _path_prepend /opt/homebrew/bin /opt/homebrew/sbin /usr/local/bin
+    export BROWSER=${BROWSER:-open}
+    ;;
+  wsl)
+    _path_append /mnt/c/Windows/System32
+    export BROWSER=${BROWSER:-"/mnt/c/Windows/explorer.exe"}
+    ;;
+  linux)
+    [[ -d /snap/bin ]] && _path_append /snap/bin
+    ;;
+esac
+
+# Example distro-specific tuning
+if [[ -f /etc/os-release ]]; then
+  case ${ID:-} in
+    ubuntu)
+      _path_prepend "${HOME}/install/x86_64@ubt24/nvim-0.11/bin" \
+                    "${HOME}/sandbox/github/myScripts" \
+                    "${HOME}/install/x86_64@ubt24/anki-launcher-25.07.5-linux"
+      ;;
+  esac
+fi
 
 #------------------------------------------------------------------------------
-# aliases
+# Aliases
 #------------------------------------------------------------------------------
-alias ne='source ~/.zshrc'
-alias zconf='nvim ~/.zshrc' 
-alias ll='ls -l '
-alias la='ls -a -l'
+alias reload='source ~/.zshrc'
+alias zconf='${EDITOR:-nvim} ~/.zshrc'
+alias cls='(clear && printf "%s\n" "$PWD" && ls)'
+alias ll='ls -lh'
+alias la='ls -Ahl'
 alias sl='ls -lrs'
-alias tl="ls -l -t -r "
-alias cls='(clear;pwd;ll;ls)'
+alias tl='ls -ltr'
+alias his='history 1'
+alias vi='${EDITOR:-nvim}'
+alias tn='tmux rename-window "$(basename "$PWD")"'
 alias gitlog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
-alias his='history'
-alias tn='tmux rename-window `basename $PWD`'
-alias vi='nvim'
-alias autoclick='(while true; do xdotool click 1; sleep 10; done) '
 
 #------------------------------------------------------------------------------
-# functions
+# Functions
 #------------------------------------------------------------------------------
 showpath() {
-    for p in ${(s/:/)PATH}; do
-        if [ -e "$p" ]; then
-            echo "  $p"
-        else
-            echo "[X] $p"
-        fi
-    done
-} #showpath
+  for p in ${(s/:/)PATH}; do
+    if [[ -e $p ]]; then
+      printf '  %s\n' "$p"
+    else
+      printf '[X] %s\n' "$p"
+    fi
+  done
+}
 
 checkpath() {
-    for d in ${(s/:/)PATH}; do
-        if [ ! -e "$d" ]; then
-            echo "[Invalid] $d"
-        fi
-    done
-} #checkpath
+  for d in ${(s/:/)PATH}; do
+    [[ -e $d ]] || printf '[Invalid] %s\n' "$d"
+  done
+}
 
+mkcd() {
+  [[ -n $1 ]] || { echo "usage: mkcd <dir>"; return 1; }
+  mkdir -p "$1" && cd "$1"
+}
+
+up() {
+  local count=${1:-1}
+  while (( count-- > 0 )); do cd .. || return; done
+}
 
 #------------------------------------------------------------------------------
-# PATH for Ubuntu 24
+# Tooling bootstrap (Oh My Zsh / completions / local scripts)
 #------------------------------------------------------------------------------
-if [[ "$my_os_info" == Ubuntu\ 24* ]]; then
-    echo "-- Setting PATH for $my_os_info"
-    path=(${HOME}/.local/bin $path)
-    path=(${HOME}/install/x86_64@ubt24/nvim-0.11/bin $path)
-    path=(${HOME}/sandbox/github/myScripts $path)
-    path=(${HOME}/install/x86_64@ubt24/anki-launcher-25.07.5-linux $path)
+if [[ -d "${HOME}/.oh-my-zsh" ]]; then
+  export ZSH="${HOME}/.oh-my-zsh"
+  ZSH_THEME="robbyrussell"
+  plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
+  source "${ZSH}/oh-my-zsh.sh"
 fi
 
+if _have direnv; then
+  eval "$(direnv hook zsh)"
+fi
 
-source ~/.zshrc.local
+#------------------------------------------------------------------------------
+# Platform specific niceties
+#------------------------------------------------------------------------------
+case ${ZCFG[platform]} in
+  macos)
+    alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
+    export PATH
+    ;;
+  wsl)
+    export WSLENV="PATH/l:${WSLENV}"
+    ;;
+  linux)
+    ;;
+esac
 
-
+#------------------------------------------------------------------------------
+# Custom local overrides
+#------------------------------------------------------------------------------
+[[ -r ~/.zshrc.local ]] && source ~/.zshrc.local
