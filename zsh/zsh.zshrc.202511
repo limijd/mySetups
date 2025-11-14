@@ -1,0 +1,74 @@
+#------------------------------------------------------------------------------
+# basics
+#------------------------------------------------------------------------------
+# Path to your Oh My Zsh installation.
+export LANG=en_US.UTF-8
+if [[ -n $SSH_CONNECTION ]]; then
+   export EDITOR='vim'
+else
+   export EDITOR='nvim'
+fi
+bindkey -v
+
+echo "-- zsh ~/.zshrc $(date '+%F %T')"
+
+#------------------------------------------------------------------------------
+# SHELL Context
+#------------------------------------------------------------------------------
+my_os=$(uname -s)
+my_arch=$(uname -p)
+my_kernel=$(uname -r)
+
+#------------------------------------------------------------------------------
+# aliases
+#------------------------------------------------------------------------------
+alias ne='source ~/.zshrc'
+alias zconf='nvim ~/.zshrc' 
+alias ll='ls -l '
+alias la='ls -a -l'
+alias sl='ls -lrs'
+alias tl="ls -l -t -r "
+alias cls='(clear;pwd;ll;ls)'
+alias gitlog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
+alias his='history'
+alias tn='tmux rename-window `basename $PWD`'
+alias vi='nvim'
+alias autoclick='(while true; do xdotool click 1; sleep 10; done) '
+
+#------------------------------------------------------------------------------
+# functions
+#------------------------------------------------------------------------------
+showpath() {
+    for p in ${(s/:/)PATH}; do
+        if [ -e "$p" ]; then
+            echo "  $p"
+        else
+            echo "[X] $p"
+        fi
+    done
+} #showpath
+
+checkpath() {
+    for d in ${(s/:/)PATH}; do
+        if [ ! -e "$d" ]; then
+            echo "[Invalid] $d"
+        fi
+    done
+} #checkpath
+
+
+#------------------------------------------------------------------------------
+# PATH for Ubuntu 24
+#------------------------------------------------------------------------------
+if [[ "$my_os_info" == Ubuntu\ 24* ]]; then
+    echo "-- Setting PATH for $my_os_info"
+    path=(${HOME}/.local/bin $path)
+    path=(${HOME}/install/x86_64@ubt24/nvim-0.11/bin $path)
+    path=(${HOME}/sandbox/github/myScripts $path)
+    path=(${HOME}/install/x86_64@ubt24/anki-launcher-25.07.5-linux $path)
+fi
+
+
+source ~/.zshrc.local
+
+
