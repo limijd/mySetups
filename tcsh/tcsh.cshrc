@@ -2,6 +2,8 @@
 
 set my_os=`uname -s`
 set my_arch=`uname -p`
+set my_kernel=`uname -r`
+set my_os_info=`hostnamectl | grep "Operating System" | awk -F ': ' '{print $2}'`
 
 if(! $?prompt) then
     exit 0
@@ -105,6 +107,12 @@ endif #endof: if $my_os/$my_arch == 'Darwin/arm'
     
 if ( $my_os/$my_arch == 'Linux/aarch64' ) then
     echo "--- Setting up for Linux/aarch64"
+endif
+
+if ( "$my_os_info" == "Ubuntu 24.04.1 LTS" ) then
+    echo "--- Setting up for Ubuntu 24.04.1 LTS"
+
+    set path = ($path /snap/bin )
 endif
 
 if ( -e ${HOME}/.cshrc.local ) then
