@@ -98,7 +98,11 @@ ZSH_CACHE_DIR=${XDG_CACHE_HOME:-$HOME/.cache}/zsh
 mkdir -p "$ZSH_CACHE_DIR"
 compinit -d "${ZSH_CACHE_DIR}/zcompdump"
 promptinit
-prompt pure 2>/dev/null || PROMPT='%F{cyan}%n@%m%f %F{yellow}%1~%f %# '
+if [[ -n ${functions[prompt_pure_setup]} ]]; then
+  prompt pure
+else
+  PROMPT='%F{cyan}%n@%m%f %F{yellow}%1~%f %# '
+fi
 
 #------------------------------------------------------------------------------
 # PATH (base + platform tweaks)
