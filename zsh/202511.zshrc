@@ -185,6 +185,7 @@ _path_prepend "${HOME}/bin" "${HOME}/.local/bin"
 case ${ZCFG[platform]} in
   macos)
     _path_prepend /opt/homebrew/bin /opt/homebrew/sbin /usr/local/bin
+    _path_prepend /opt/homebrew/opt/llvm@20/bin
     export BROWSER=${BROWSER:-open}
     ;;
   wsl)
@@ -213,6 +214,7 @@ fi
 alias reload='source ~/.zshrc'
 alias zconf='${EDITOR:-nvim} ~/.zshrc'
 alias cls='(clear && printf "%s\n" "$PWD" && ls)'
+alias ls='ls --color'
 alias ll='ls -lh'
 alias la='ls -Ahl'
 alias sl='ls -lrs'
