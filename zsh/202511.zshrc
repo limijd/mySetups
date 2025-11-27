@@ -117,6 +117,55 @@ zstyle ':vcs_info:git:*' formats '%F{magenta}git:%b%f%F{yellow}%u%f%F{red}%c%f'
 zstyle ':vcs_info:git:*' actionformats '%F{magenta}git:%b|%a%f%F{yellow}%u%f%F{red}%c%f'
 
 typeset -gF ZCFG_CMD_STARTED_AT=0
+typeset -gF ZCFG_CPU_TEMP_CACHE_AT=0
+typeset -g ZCFG_CPU_TEMP_CACHE=""
+
+# Cache CPU temperature from `sensors` so we do not run it for every prompt render.
+zcfg_cpu_temp_segment() {
+  _have sensors || return 0
+
+  local now=$EPOCHREALTIME
+  if (( now - ZCFG_CPU_TEMP_CACHE_AT < 5 )) && [[ -n $ZCFG_CPU_TEMP_CACHE ]]; then
+    print -r -- "$ZCFG_CPU_TEMP_CACHE"
+    return 0
+  fi
+
+  local reading
+  reading=$(
+    LC_ALL=C sensors 2>/dev/null | awk '
+      /Package id 0/ {
+        if (match($0, /:[[:space:]]*[+-]?[0-9][0-9]*([.][0-9][0-9]*)?/)) {
+          val=substr($0, RSTART+1, RLENGTH-1); gsub(/[^0-9.-]/, "", val)
+          if (length(val)) { print val; exit }
+        }
+      }
+      tolower($0) ~ /(tctl|tdie|edge|temp1)/ {
+        if (match($0, /:[[:space:]]*[+-]?[0-9][0-9]*([.][0-9][0-9]*)?/)) {
+          val=substr($0, RSTART+1, RLENGTH-1); gsub(/[^0-9.-]/, "", val)
+          if (length(val)) { print val; exit }
+        }
+      }
+    '
+  )
+
+  [[ -n $reading ]] || return 0
+
+  local -F temp_value=$reading
+  local temp_color
+  if (( temp_value >= 85 )); then
+    temp_color="%F{196}"
+  elif (( temp_value >= 70 )); then
+    temp_color="%F{214}"
+  else
+    temp_color="%F{40}"
+  fi
+
+  local temp_display
+  temp_display=$(printf '%.0f°C' "$temp_value")
+  ZCFG_CPU_TEMP_CACHE="${temp_color}CPU ${temp_display}%f"
+  ZCFG_CPU_TEMP_CACHE_AT=$now
+  print -r -- "$ZCFG_CPU_TEMP_CACHE"
+}
 
 zcfg_prompt_preexec() {
   ZCFG_CMD_STARTED_AT=$EPOCHREALTIME
@@ -162,11 +211,12 @@ zcfg_prompt_precmd() {
   fi
 
   local time_segment="%F{244}%*%f"
-  if [[ -n $duration_segment ]]; then
-    RPROMPT="%F{244}${duration_segment}%f ${time_segment}"
-  else
-    RPROMPT="${time_segment}"
-  fi
+  local cpu_temp_segment=$(zcfg_cpu_temp_segment)
+  local -a rprompt_parts=()
+  [[ -n $cpu_temp_segment ]] && rprompt_parts+="$cpu_temp_segment"
+  [[ -n $duration_segment ]] && rprompt_parts+=("%F{244}${duration_segment}%f")
+  rprompt_parts+="$time_segment"
+  RPROMPT="${(j: :)rprompt_parts}"
 
   local symbol='%(!.#.$)'  # show # for root shells
   PROMPT="${status_segment} ${user_host} ${cwd}${git_segment}"$'\n'"%F{111}${symbol}%f "
