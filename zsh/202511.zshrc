@@ -133,18 +133,11 @@ zcfg_cpu_temp_segment() {
   local reading
   reading=$(
     LC_ALL=C sensors 2>/dev/null | awk '
-      /Package id 0/ {
-        val=$4
-        gsub(/[^0-9.+-]/, "", val)
-        if (length(val)) { print val; exit }
-      }
-      tolower($0) ~ /(tctl|tdie|edge|temp1)/ {
-        for (i = 1; i <= NF; i++) {
-          if (match($i, /^[+-]?[0-9]+(\.[0-9]+)?/)) {
-            val=substr($i, RSTART, RLENGTH)
-            gsub(/[^0-9.+-]/, "", val)
-            if (length(val)) { print val; exit }
-          }
+      tolower($0) ~ /package id 0/ {
+        if (match($0, /:[[:space:]]*[+-]?[0-9][0-9]*([.][0-9]+)?/)) {
+          val=substr($0, RSTART+1, RLENGTH-1)
+          gsub(/[^0-9.+-]/, "", val)
+          if (length(val)) { print val; exit }
         }
       }
     '
