@@ -167,7 +167,7 @@ zcfg_cpu_temp_segment() {
 # Cache Tailscale status to avoid running the command on every prompt.
 # Three states:
 #   TS⊗ = Tailscale not installed or unavailable
-#   TS⬢ⁿ = Tailscale is active and online (n = peer count in superscript)
+#   TS⬢⁽ᵐ/ⁿ⁾ = Tailscale is active and online (m/n = online/total clients in superscript)
 #   TS⬡ = Tailscale is installed but inactive
 # Uses fast systemd check instead of slow 'tailscale status' command
 zcfg_tailscale_segment() {
@@ -187,13 +187,24 @@ zcfg_tailscale_segment() {
     # Fast check: use systemctl to check if tailscaled service is active
     # This is much faster than running 'tailscale status'
     if systemctl is-active --quiet tailscaled 2>/dev/null; then
-      # Count peers in the network (excluding self)
-      local peer_count
-      peer_count=$(tailscale status --peers 2>/dev/null | wc -l)
-      # Convert count to superscript for cleaner display
-      local superscript_count
-      superscript_count=$(echo "$peer_count" | sed 's/0/⁰/g; s/1/¹/g; s/2/²/g; s/3/³/g; s/4/⁴/g; s/5/⁵/g; s/6/⁶/g; s/7/⁷/g; s/8/⁸/g; s/9/⁹/g')
-      ts_symbol="TS⬢${superscript_count}"
+      # Get full status output to count total and online clients
+      local status_output
+      status_output=$(tailscale status --peers 2>/dev/null)
+      
+      # Count total peers
+      local total_count
+      total_count=$(echo "$status_output" | wc -l)
+      
+      # Count online peers (those without "offline" in their line)
+      local online_count
+      online_count=$(echo "$status_output" | grep -v -i "offline" | wc -l)
+      
+      # Convert counts to superscript
+      local online_super total_super
+      online_super=$(echo "$online_count" | sed 's/0/⁰/g; s/1/¹/g; s/2/²/g; s/3/³/g; s/4/⁴/g; s/5/⁵/g; s/6/⁶/g; s/7/⁷/g; s/8/⁸/g; s/9/⁹/g')
+      total_super=$(echo "$total_count" | sed 's/0/⁰/g; s/1/¹/g; s/2/²/g; s/3/³/g; s/4/⁴/g; s/5/⁵/g; s/6/⁶/g; s/7/⁷/g; s/8/⁸/g; s/9/⁹/g')
+      
+      ts_symbol="TS⬢${online_super}/${total_super}"
       ts_color="%F{42}"   # green for active
     else
       ts_symbol="TS⬡"
