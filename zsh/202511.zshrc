@@ -204,7 +204,7 @@ zcfg_tailscale_segment() {
       online_super=$(echo "$online_count" | sed 's/0/⁰/g; s/1/¹/g; s/2/²/g; s/3/³/g; s/4/⁴/g; s/5/⁵/g; s/6/⁶/g; s/7/⁷/g; s/8/⁸/g; s/9/⁹/g')
       total_super=$(echo "$total_count" | sed 's/0/⁰/g; s/1/¹/g; s/2/²/g; s/3/³/g; s/4/⁴/g; s/5/⁵/g; s/6/⁶/g; s/7/⁷/g; s/8/⁸/g; s/9/⁹/g')
       
-      ts_symbol="TS⬢${online_super}ᐟ${total_super}"
+      ts_symbol="TS⬢${online_super}⁄${total_super}"
       ts_color="%F{42}"   # green for active
     else
       ts_symbol="TS⬡"
