@@ -119,6 +119,8 @@ zstyle ':vcs_info:git:*' actionformats '%F{magenta}git:%b|%a%f%F{yellow}%u%f%F{r
 typeset -gF ZCFG_CMD_STARTED_AT=0
 typeset -gF ZCFG_CPU_TEMP_CACHE_AT=0
 typeset -g ZCFG_CPU_TEMP_CACHE=""
+typeset -gF ZCFG_TAILSCALE_CACHE_AT=0
+typeset -g ZCFG_TAILSCALE_CACHE=""
 
 # Cache CPU temperature from `sensors` so we do not run it for every prompt render.
 zcfg_cpu_temp_segment() {
@@ -160,6 +162,48 @@ zcfg_cpu_temp_segment() {
   ZCFG_CPU_TEMP_CACHE="${temp_color}CPU ${temp_display}%f"
   ZCFG_CPU_TEMP_CACHE_AT=$now
   print -r -- "$ZCFG_CPU_TEMP_CACHE"
+}
+
+# Cache Tailscale status to avoid running the command on every prompt.
+# Three states:
+#   ⊘ = Tailscale not installed or unavailable
+#   ◉ = Tailscale is active and online
+#   ○ = Tailscale is installed but inactive
+# Uses fast systemd check instead of slow 'tailscale status' command
+zcfg_tailscale_segment() {
+  local now=$EPOCHREALTIME
+  if (( now - ZCFG_TAILSCALE_CACHE_AT < 60 )) && [[ -n $ZCFG_TAILSCALE_CACHE ]]; then
+    print -r -- "$ZCFG_TAILSCALE_CACHE"
+    return 0
+  fi
+
+  local ts_symbol ts_color
+  
+  # Check if tailscale command exists
+  if ! command -v tailscale >/dev/null 2>&1; then
+    ts_symbol="TS⊗"
+    ts_color="%F{240}"  # dark gray for not installed
+  else
+    # Fast check: use systemctl to check if tailscaled service is active
+    # This is much faster than running 'tailscale status'
+    if systemctl is-active --quiet tailscaled 2>/dev/null; then
+      # Count peers in the network (excluding self)
+      local peer_count
+      peer_count=$(tailscale status --peers 2>/dev/null | wc -l)
+      # Convert count to superscript for cleaner display
+      local superscript_count
+      superscript_count=$(echo "$peer_count" | sed 's/0/⁰/g; s/1/¹/g; s/2/²/g; s/3/³/g; s/4/⁴/g; s/5/⁵/g; s/6/⁶/g; s/7/⁷/g; s/8/⁸/g; s/9/⁹/g')
+      ts_symbol="TS⬢${superscript_count}"
+      ts_color="%F{42}"   # green for active
+    else
+      ts_symbol="TS⬡"
+      ts_color="%F{214}"  # orange for inactive
+    fi
+  fi
+
+  ZCFG_TAILSCALE_CACHE="${ts_color}${ts_symbol}%f"
+  ZCFG_TAILSCALE_CACHE_AT=$now
+  print -r -- "$ZCFG_TAILSCALE_CACHE"
 }
 
 zcfg_prompt_preexec() {
@@ -207,7 +251,9 @@ zcfg_prompt_precmd() {
 
   local time_segment="%F{244}%*%f"
   local cpu_temp_segment=$(zcfg_cpu_temp_segment)
+  local tailscale_segment=$(zcfg_tailscale_segment)
   local -a rprompt_parts=()
+  [[ -n $tailscale_segment ]] && rprompt_parts+="$tailscale_segment"
   [[ -n $cpu_temp_segment ]] && rprompt_parts+="$cpu_temp_segment"
   [[ -n $duration_segment ]] && rprompt_parts+=("%F{244}${duration_segment}%f")
   rprompt_parts+="$time_segment"
