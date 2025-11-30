@@ -117,6 +117,105 @@ zstyle ':vcs_info:git:*' formats '%F{magenta}git:%b%f%F{yellow}%u%f%F{red}%c%f'
 zstyle ':vcs_info:git:*' actionformats '%F{magenta}git:%b|%a%f%F{yellow}%u%f%F{red}%c%f'
 
 typeset -gF ZCFG_CMD_STARTED_AT=0
+typeset -gF ZCFG_CPU_TEMP_CACHE_AT=0
+typeset -g ZCFG_CPU_TEMP_CACHE=""
+typeset -gF ZCFG_TAILSCALE_CACHE_AT=0
+typeset -g ZCFG_TAILSCALE_CACHE=""
+
+# Cache CPU temperature from `sensors` so we do not run it for every prompt render.
+zcfg_cpu_temp_segment() {
+  _have sensors || return 0
+
+  local now=$EPOCHREALTIME
+  if (( now - ZCFG_CPU_TEMP_CACHE_AT < 5 )) && [[ -n $ZCFG_CPU_TEMP_CACHE ]]; then
+    print -r -- "$ZCFG_CPU_TEMP_CACHE"
+    return 0
+  fi
+
+  local reading
+  reading=$(
+    LC_ALL=C sensors 2>/dev/null | awk '
+      tolower($0) ~ /package id 0/ {
+        if (match($0, /:[[:space:]]*[+-]?[0-9][0-9]*([.][0-9]+)?/)) {
+          val=substr($0, RSTART+1, RLENGTH-1)
+          gsub(/[^0-9.+-]/, "", val)
+          if (length(val)) { print val; exit }
+        }
+      }
+    '
+  )
+
+  [[ -n $reading ]] || return 0
+
+  local -F temp_value=$reading
+  local temp_color
+  if (( temp_value >= 85 )); then
+    temp_color="%F{196}"
+  elif (( temp_value >= 70 )); then
+    temp_color="%F{214}"
+  else
+    temp_color="%F{40}"
+  fi
+
+  local temp_display
+  temp_display=$(printf '%.0f°C' "$temp_value")
+  ZCFG_CPU_TEMP_CACHE="${temp_color}CPU ${temp_display}%f"
+  ZCFG_CPU_TEMP_CACHE_AT=$now
+  print -r -- "$ZCFG_CPU_TEMP_CACHE"
+}
+
+# Cache Tailscale status to avoid running the command on every prompt.
+# Three states:
+#   TS⊗ = Tailscale not installed or unavailable
+#   TS⬢⁽ᵐ/ⁿ⁾ = Tailscale is active and online (m/n = online/total clients in superscript)
+#   TS⬡ = Tailscale is installed but inactive
+# Uses fast systemd check instead of slow 'tailscale status' command
+zcfg_tailscale_segment() {
+  local now=$EPOCHREALTIME
+  if (( now - ZCFG_TAILSCALE_CACHE_AT < 60 )) && [[ -n $ZCFG_TAILSCALE_CACHE ]]; then
+    print -r -- "$ZCFG_TAILSCALE_CACHE"
+    return 0
+  fi
+
+  local ts_symbol ts_color
+  
+  # Check if tailscale command exists
+  if ! command -v tailscale >/dev/null 2>&1; then
+    ts_symbol="TS⊗"
+    ts_color="%F{240}"  # dark gray for not installed
+  else
+    # Fast check: use systemctl to check if tailscaled service is active
+    # This is much faster than running 'tailscale status'
+    if systemctl is-active --quiet tailscaled 2>/dev/null; then
+      # Get full status output to count total and online clients
+      local status_output
+      status_output=$(tailscale status --peers 2>/dev/null)
+      
+      # Count total peers
+      local total_count
+      total_count=$(echo "$status_output" | wc -l)
+      
+      # Count online peers (those without "offline" in their line)
+      local online_count
+      online_count=$(echo "$status_output" | grep -v -i "offline" | wc -l)
+      
+      # Convert counts to superscript
+      local online_super total_super
+      online_super=$(echo "$online_count" | sed 's/0/⁰/g; s/1/¹/g; s/2/²/g; s/3/³/g; s/4/⁴/g; s/5/⁵/g; s/6/⁶/g; s/7/⁷/g; s/8/⁸/g; s/9/⁹/g')
+      total_super=$(echo "$total_count" | sed 's/0/⁰/g; s/1/¹/g; s/2/²/g; s/3/³/g; s/4/⁴/g; s/5/⁵/g; s/6/⁶/g; s/7/⁷/g; s/8/⁸/g; s/9/⁹/g')
+      
+      ts_symbol="TS⬢${online_super}⁄${total_super}"
+      ts_color="%F{42}"   # green for active
+    else
+      ts_symbol="TS⬡"
+      ts_color="%F{214}"  # orange for inactive
+    fi
+  fi
+
+  ZCFG_TAILSCALE_CACHE="${ts_color}${ts_symbol}%f"
+  ZCFG_TAILSCALE_CACHE_AT=$now
+  print -r -- "$ZCFG_TAILSCALE_CACHE"
+}
 
 zcfg_prompt_preexec() {
   ZCFG_CMD_STARTED_AT=$EPOCHREALTIME
@@ -162,11 +261,14 @@ zcfg_prompt_precmd() {
   fi
 
   local time_segment="%F{244}%*%f"
-  if [[ -n $duration_segment ]]; then
-    RPROMPT="%F{244}${duration_segment}%f ${time_segment}"
-  else
-    RPROMPT="${time_segment}"
-  fi
+  local cpu_temp_segment=$(zcfg_cpu_temp_segment)
+  local tailscale_segment=$(zcfg_tailscale_segment)
+  local -a rprompt_parts=()
+  [[ -n $tailscale_segment ]] && rprompt_parts+="$tailscale_segment"
+  [[ -n $cpu_temp_segment ]] && rprompt_parts+="$cpu_temp_segment"
+  [[ -n $duration_segment ]] && rprompt_parts+=("%F{244}${duration_segment}%f")
+  rprompt_parts+="$time_segment"
+  RPROMPT="${(j: :)rprompt_parts}"
 
   local symbol='%(!.#.$)'  # show # for root shells
   PROMPT="${status_segment} ${user_host} ${cwd}${git_segment}"$'\n'"%F{111}${symbol}%f "
