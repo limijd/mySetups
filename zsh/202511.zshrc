@@ -184,7 +184,11 @@ _path_prepend "${HOME}/bin" "${HOME}/.local/bin"
 
 case ${ZCFG[platform]} in
   macos)
-    _path_prepend /opt/homebrew/bin /opt/homebrew/sbin /usr/local/bin
+    _path_prepend /usr/bin
+    _path_prepend /usr/sbin
+    _path_prepend /usr/local/bin
+    _path_prepend /opt/homebrew/bin 
+    _path_prepend /opt/homebrew/sbin 
     _path_prepend /opt/homebrew/opt/llvm@20/bin
     export BROWSER=${BROWSER:-open}
     ;;
