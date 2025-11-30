@@ -166,9 +166,9 @@ zcfg_cpu_temp_segment() {
 
 # Cache Tailscale status to avoid running the command on every prompt.
 # Three states:
-#   ⊘ = Tailscale not installed or unavailable
-#   ◉ = Tailscale is active and online
-#   ○ = Tailscale is installed but inactive
+#   TS⊗ = Tailscale not installed or unavailable
+#   TS⬢ⁿ = Tailscale is active and online (n = peer count in superscript)
+#   TS⬡ = Tailscale is installed but inactive
 # Uses fast systemd check instead of slow 'tailscale status' command
 zcfg_tailscale_segment() {
   local now=$EPOCHREALTIME
