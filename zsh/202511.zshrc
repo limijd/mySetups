@@ -101,11 +101,21 @@ setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS CORRECT \
 bindkey -v
 set -o emacs # vi insert with Emacs keys for search
 
-autoload -Uz colors compinit promptinit vcs_info add-zsh-hook
+autoload -Uz colors compinit compaudit promptinit vcs_info add-zsh-hook
 colors
 ZSH_CACHE_DIR=${XDG_CACHE_HOME:-$HOME/.cache}/zsh
 mkdir -p "$ZSH_CACHE_DIR"
-compinit -d "${ZSH_CACHE_DIR}/zcompdump"
+{
+  # Run compaudit first so broken/insecure completion files cannot abort compinit.
+  compaudit_out=$(compaudit 2>&1)
+  if [[ $? -eq 0 ]]; then
+    compinit -d "${ZSH_CACHE_DIR}/zcompdump"
+  else
+    print -u2 "[Warn] compaudit reported issues; using compinit -i. Details:"
+    print -u2 "$compaudit_out"
+    compinit -i -d "${ZSH_CACHE_DIR}/zcompdump"
+  fi
+}
 promptinit
 
 #------------------------------------------------------------------------------
