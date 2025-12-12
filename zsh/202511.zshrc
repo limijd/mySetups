@@ -99,20 +99,24 @@ setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS CORRECT \
 # Key bindings & completion
 #------------------------------------------------------------------------------
 bindkey -v
-set -o emacs # vi insert with Emacs keys for search
+bindkey '^R' history-incremental-search-backward
+bindkey '^S' history-incremental-search-forward
 
 autoload -Uz colors compinit compaudit promptinit vcs_info add-zsh-hook
 colors
 ZSH_CACHE_DIR=${XDG_CACHE_HOME:-$HOME/.cache}/zsh
 mkdir -p "$ZSH_CACHE_DIR"
+ZCFG_COMPAUDIT_VERBOSE=${ZCFG_COMPAUDIT_VERBOSE:-0}
 {
   # Run compaudit first so broken/insecure completion files cannot abort compinit.
   compaudit_out=$(compaudit 2>&1)
   if [[ $? -eq 0 ]]; then
     compinit -d "${ZSH_CACHE_DIR}/zcompdump"
   else
-    print -u2 "[Warn] compaudit reported issues; using compinit -i. Details:"
-    print -u2 "$compaudit_out"
+    if (( ZCFG_COMPAUDIT_VERBOSE )); then
+      print -u2 "[Warn] compaudit reported issues; using compinit -i. Details:"
+      print -u2 "$compaudit_out"
+    fi
     compinit -i -d "${ZSH_CACHE_DIR}/zcompdump"
   fi
 }
