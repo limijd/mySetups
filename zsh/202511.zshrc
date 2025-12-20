@@ -5,7 +5,8 @@
 
 export LANG=${LANG:-en_US.UTF-8}
 export LC_ALL=${LC_ALL:-$LANG}
-export TZ=${TZ:-UTC}
+#export TZ=${TZ:-UTC}
+unset TZ
 
 # Set restrictive umask: no group or other permissions for new files
 # New files: 600 (rw-------), New directories: 700 (rwx------)
