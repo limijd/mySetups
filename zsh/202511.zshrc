@@ -400,6 +400,7 @@ fi
 # Aliases (quality-of-life wrappers; safe to extend per host)
 #------------------------------------------------------------------------------
 alias reload='source ~/.zshrc'
+alias reload-full='rm -f "${ZSH_CACHE_DIR}/geoip_location" && ZCFG_GEOIP_CACHE_AT=0 ZCFG_TAILSCALE_CACHE_AT=0 && source ~/.zshrc'
 alias zconf='${EDITOR:-nvim} ~/.zshrc'
 alias cls='(clear && printf "%s\n" "$PWD" && ls)'
 alias ls='ls --color'
