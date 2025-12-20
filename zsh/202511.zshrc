@@ -140,6 +140,8 @@ typeset -gF ZCFG_CPU_TEMP_CACHE_AT=0
 typeset -g ZCFG_CPU_TEMP_CACHE=""
 typeset -gF ZCFG_TAILSCALE_CACHE_AT=0
 typeset -g ZCFG_TAILSCALE_CACHE=""
+typeset -gF ZCFG_GEOIP_CACHE_AT=0
+typeset -g ZCFG_GEOIP_CACHE=""
 
 # Cache CPU temperature from `sensors` so we do not run it for every prompt render.
 zcfg_cpu_temp_segment() {
@@ -236,6 +238,69 @@ zcfg_tailscale_segment() {
   print -r -- "$ZCFG_TAILSCALE_CACHE"
 }
 
+# Cache public IP geolocation with background refresh.
+# Uses file cache for persistence, in-memory cache for speed.
+# Supports curl with wget fallback, graceful degradation if neither available.
+zcfg_geoip_segment() {
+  local cache_file="${ZSH_CACHE_DIR}/geoip_location"
+  local now=$EPOCHREALTIME
+  
+  # In-memory cache valid for 60s
+  if (( now - ZCFG_GEOIP_CACHE_AT < 60 )) && [[ -n $ZCFG_GEOIP_CACHE ]]; then
+    print -r -- "$ZCFG_GEOIP_CACHE"
+    return 0
+  fi
+
+  # Check file age - refresh in background if older than 30 min
+  local refresh_needed=0
+  if [[ -r $cache_file ]]; then
+    local -A file_stat
+    zstat -H file_stat "$cache_file" 2>/dev/null
+    local file_age=$(( EPOCHSECONDS - file_stat[mtime] ))
+    (( file_age > 1800 )) && refresh_needed=1
+  else
+    refresh_needed=1
+  fi
+
+  # Background refresh (non-blocking) with curl/wget fallback
+  if (( refresh_needed )); then
+    (
+      local json loc
+      if _have curl; then
+        json=$(curl -s --max-time 5 "https://ipinfo.io/json" 2>/dev/null)
+      elif _have wget; then
+        json=$(wget -qO- --timeout=5 "https://ipinfo.io/json" 2>/dev/null)
+      else
+        exit 0
+      fi
+      
+      # Parse JSON without jq - extract city and country
+      loc=$(echo "$json" | command grep -oP '"city":\s*"\K[^"]+|"country":\s*"\K[^"]+' 2>/dev/null | paste -sd', ')
+      
+      # Fallback: if grep -P not available, try sed
+      if [[ -z $loc ]]; then
+        local city country
+        city=$(echo "$json" | sed -n 's/.*"city"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)
+        country=$(echo "$json" | sed -n 's/.*"country"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)
+        [[ -n $city && -n $country ]] && loc="${city}, ${country}"
+      fi
+      
+      [[ -n $loc ]] && print -r -- "$loc" > "$cache_file"
+    ) &>/dev/null &!
+  fi
+
+  # Read from file cache
+  if [[ -r $cache_file ]]; then
+    local location
+    location=$(<"$cache_file")
+    if [[ -n $location ]]; then
+      ZCFG_GEOIP_CACHE="%F{117}📍${location}%f"
+      ZCFG_GEOIP_CACHE_AT=$now
+      print -r -- "$ZCFG_GEOIP_CACHE"
+    fi
+  fi
+}
+
 zcfg_prompt_preexec() {
   ZCFG_CMD_STARTED_AT=$EPOCHREALTIME
 }
@@ -282,7 +347,9 @@ zcfg_prompt_precmd() {
   local time_segment="%F{244}%*%f"
   local cpu_temp_segment=$(zcfg_cpu_temp_segment)
   local tailscale_segment=$(zcfg_tailscale_segment)
+  local geoip_segment=$(zcfg_geoip_segment)
   local -a rprompt_parts=()
+  [[ -n $geoip_segment ]] && rprompt_parts+="$geoip_segment"
   [[ -n $tailscale_segment ]] && rprompt_parts+="$tailscale_segment"
   [[ -n $cpu_temp_segment ]] && rprompt_parts+="$cpu_temp_segment"
   [[ -n $duration_segment ]] && rprompt_parts+=("%F{244}${duration_segment}%f")
