@@ -427,6 +427,41 @@ alias gitlog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Cres
 #------------------------------------------------------------------------------
 # Functions (diagnostics + directory helpers)
 #------------------------------------------------------------------------------
+proxy_on() {
+  local host=${1:-127.0.0.1}
+  local port=${2:-10808}
+  local http_url="http://${host}:${port}"
+  local socks_url="socks5://${host}:${port}"
+
+  export http_proxy="$http_url"
+  export https_proxy="$http_url"
+  export all_proxy="$socks_url"
+  export HTTP_PROXY="$http_url"
+  export HTTPS_PROXY="$http_url"
+  export ALL_PROXY="$socks_url"
+
+  printf 'proxy: ON (http=%s, socks=%s)\n' "$http_url" "$socks_url"
+}
+
+proxy_off() {
+  unset http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY
+  echo "proxy: OFF"
+}
+
+proxy_status() {
+  local http="${http_proxy:-${HTTP_PROXY:-}}"
+  local socks="${all_proxy:-${ALL_PROXY:-}}"
+  if [[ -z $http && -z $socks ]]; then
+    echo "proxy: OFF"
+    return 0
+  fi
+  printf 'proxy: ON (http=%s, socks=%s)\n' "${http:-<unset>}" "${socks:-<unset>}"
+}
+
+alias proxyon='proxy_on'
+alias proxyoff='proxy_off'
+alias proxystatus='proxy_status'
+
 showpath() {
   for p in ${(s/:/)PATH}; do
     if [[ -e $p ]]; then

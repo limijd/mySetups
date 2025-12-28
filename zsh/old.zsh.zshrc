@@ -83,6 +83,41 @@ update_nvim_cwd() {
     nvr --remote-expr 'setenv("PWD", $PWD)'
 } #update_nvim_cwd
 
+proxy_on() {
+    local host=${1:-127.0.0.1}
+    local port=${2:-10808}
+    local http_url="http://${host}:${port}"
+    local socks_url="socks5://${host}:${port}"
+
+    export http_proxy="$http_url"
+    export https_proxy="$http_url"
+    export all_proxy="$socks_url"
+    export HTTP_PROXY="$http_url"
+    export HTTPS_PROXY="$http_url"
+    export ALL_PROXY="$socks_url"
+
+    echo "proxy: ON (http=${http_url}, socks=${socks_url})"
+} #proxy_on
+
+proxy_off() {
+    unset http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY
+    echo "proxy: OFF"
+} #proxy_off
+
+proxy_status() {
+    local http="${http_proxy:-${HTTP_PROXY:-}}"
+    local socks="${all_proxy:-${ALL_PROXY:-}}"
+    if [[ -z $http && -z $socks ]]; then
+        echo "proxy: OFF"
+        return 0
+    fi
+    echo "proxy: ON (http=${http:-<unset>}, socks=${socks:-<unset>})"
+} #proxy_status
+
+alias proxyon='proxy_on'
+alias proxyoff='proxy_off'
+alias proxystatus='proxy_status'
+
 
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
