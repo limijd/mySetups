@@ -42,10 +42,15 @@ fi
 if [[ ${ZCFG[kernel]} == *Microsoft* ]]; then
   ZCFG[platform]="wsl"
 elif [[ ${ZCFG[os]} == Darwin ]]; then
-  ZCFG[platform]="macos"
+  if [[ ${ZCFG[arch]} == "arm64" ]]; then
+    ZCFG[platform]="macos_arm"
+  else
+    ZCFG[platform]="macos_x86_64"
+  fi
 else
   ZCFG[platform]="linux"
 fi
+
 
 #------------------------------------------------------------------------------
 # Helpers
@@ -371,9 +376,13 @@ add-zsh-hook preexec zcfg_prompt_preexec
 _path_prepend "${HOME}/bin" "${HOME}/.local/bin"
 
 case ${ZCFG[platform]} in
-  macos)
-    _path_prepend /opt/homebrew/bin /opt/homebrew/sbin /usr/local/bin
+  macos_arm)
+    _path_prepend /opt/homebrew/bin /opt/homebrew/sbin
     _path_prepend /opt/homebrew/opt/llvm@20/bin
+    export BROWSER=${BROWSER:-open}
+    ;;
+  macos_x86_64)
+    _path_prepend /usr/local/bin /usr/local/sbin
     export BROWSER=${BROWSER:-open}
     ;;
   wsl)
@@ -453,8 +462,14 @@ fi
 # Platform specific niceties (commands or env that only make sense per OS)
 #------------------------------------------------------------------------------
 case ${ZCFG[platform]} in
-  macos)
+  macos_arm)
     alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
+    export ARCHFLAGS="-arch arm64"
+    export PATH
+    ;;
+  macos_x86_64)
+    alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
+    export ARCHFLAGS="-arch x86_64"
     export PATH
     ;;
   wsl)
