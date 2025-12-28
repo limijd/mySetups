@@ -392,3 +392,6 @@ if (( ${+ZCFG_LOAD_STARTED_AT} )); then
   # Quick startup telemetry so slow changes are easy to notice.
   printf -- "[Info] .zshrc loaded in %.2fs\n" "$ZCFG_LOAD_ELAPSED"
 fi
+
+# Added by Antigravity
+export PATH="/Users/wli/.antigravity/antigravity/bin:$PATH"
