@@ -51,6 +51,8 @@ else
   ZCFG[platform]="linux"
 fi
 
+echo "[Info] platform: ${ZCFG[platform]}"
+
 
 #------------------------------------------------------------------------------
 # Helpers
