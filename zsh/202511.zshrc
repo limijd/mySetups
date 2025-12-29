@@ -5,7 +5,8 @@
 
 export LANG=${LANG:-en_US.UTF-8}
 export LC_ALL=${LC_ALL:-$LANG}
-export TZ=${TZ:-UTC}
+#export TZ=${TZ:-UTC}
+unset TZ
 
 # Set restrictive umask: no group or other permissions for new files
 # New files: 600 (rw-------), New directories: 700 (rwx------)
@@ -41,10 +42,17 @@ fi
 if [[ ${ZCFG[kernel]} == *Microsoft* ]]; then
   ZCFG[platform]="wsl"
 elif [[ ${ZCFG[os]} == Darwin ]]; then
-  ZCFG[platform]="macos"
+  if [[ ${ZCFG[arch]} == "arm64" ]]; then
+    ZCFG[platform]="macos_arm"
+  else
+    ZCFG[platform]="macos_x86_64"
+  fi
 else
   ZCFG[platform]="linux"
 fi
+
+echo "[Info] platform: ${ZCFG[platform]}"
+
 
 #------------------------------------------------------------------------------
 # Helpers
@@ -139,6 +147,8 @@ typeset -gF ZCFG_CPU_TEMP_CACHE_AT=0
 typeset -g ZCFG_CPU_TEMP_CACHE=""
 typeset -gF ZCFG_TAILSCALE_CACHE_AT=0
 typeset -g ZCFG_TAILSCALE_CACHE=""
+typeset -gF ZCFG_GEOIP_CACHE_AT=0
+typeset -g ZCFG_GEOIP_CACHE=""
 
 # Cache CPU temperature from `sensors` so we do not run it for every prompt render.
 zcfg_cpu_temp_segment() {
@@ -235,6 +245,69 @@ zcfg_tailscale_segment() {
   print -r -- "$ZCFG_TAILSCALE_CACHE"
 }
 
+# Cache public IP geolocation with background refresh.
+# Uses file cache for persistence, in-memory cache for speed.
+# Supports curl with wget fallback, graceful degradation if neither available.
+zcfg_geoip_segment() {
+  local cache_file="${ZSH_CACHE_DIR}/geoip_location"
+  local now=$EPOCHREALTIME
+  
+  # In-memory cache valid for 60s
+  if (( now - ZCFG_GEOIP_CACHE_AT < 60 )) && [[ -n $ZCFG_GEOIP_CACHE ]]; then
+    print -r -- "$ZCFG_GEOIP_CACHE"
+    return 0
+  fi
+
+  # Check file age - refresh in background if older than 30 min
+  local refresh_needed=0
+  if [[ -r $cache_file ]]; then
+    local -A file_stat
+    zstat -H file_stat "$cache_file" 2>/dev/null
+    local file_age=$(( EPOCHSECONDS - file_stat[mtime] ))
+    (( file_age > 1800 )) && refresh_needed=1
+  else
+    refresh_needed=1
+  fi
+
+  # Background refresh (non-blocking) with curl/wget fallback
+  if (( refresh_needed )); then
+    (
+      local json loc
+      if _have curl; then
+        json=$(curl -s --max-time 5 "https://ipinfo.io/json" 2>/dev/null)
+      elif _have wget; then
+        json=$(wget -qO- --timeout=5 "https://ipinfo.io/json" 2>/dev/null)
+      else
+        exit 0
+      fi
+      
+      # Parse JSON without jq - extract city and country
+      loc=$(echo "$json" | command grep -oP '"city":\s*"\K[^"]+|"country":\s*"\K[^"]+' 2>/dev/null | paste -sd', ')
+      
+      # Fallback: if grep -P not available, try sed
+      if [[ -z $loc ]]; then
+        local city country
+        city=$(echo "$json" | sed -n 's/.*"city"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)
+        country=$(echo "$json" | sed -n 's/.*"country"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)
+        [[ -n $city && -n $country ]] && loc="${city}, ${country}"
+      fi
+      
+      [[ -n $loc ]] && print -r -- "$loc" > "$cache_file"
+    ) &>/dev/null &!
+  fi
+
+  # Read from file cache
+  if [[ -r $cache_file ]]; then
+    local location
+    location=$(<"$cache_file")
+    if [[ -n $location ]]; then
+      ZCFG_GEOIP_CACHE="%F{117}📍${location}%f"
+      ZCFG_GEOIP_CACHE_AT=$now
+      print -r -- "$ZCFG_GEOIP_CACHE"
+    fi
+  fi
+}
+
 zcfg_prompt_preexec() {
   ZCFG_CMD_STARTED_AT=$EPOCHREALTIME
 }
@@ -281,7 +354,9 @@ zcfg_prompt_precmd() {
   local time_segment="%F{244}%*%f"
   local cpu_temp_segment=$(zcfg_cpu_temp_segment)
   local tailscale_segment=$(zcfg_tailscale_segment)
+  local geoip_segment=$(zcfg_geoip_segment)
   local -a rprompt_parts=()
+  [[ -n $geoip_segment ]] && rprompt_parts+="$geoip_segment"
   [[ -n $tailscale_segment ]] && rprompt_parts+="$tailscale_segment"
   [[ -n $cpu_temp_segment ]] && rprompt_parts+="$cpu_temp_segment"
   [[ -n $duration_segment ]] && rprompt_parts+=("%F{244}${duration_segment}%f")
@@ -303,9 +378,13 @@ add-zsh-hook preexec zcfg_prompt_preexec
 _path_prepend "${HOME}/bin" "${HOME}/.local/bin"
 
 case ${ZCFG[platform]} in
-  macos)
-    _path_prepend /opt/homebrew/bin /opt/homebrew/sbin /usr/local/bin
+  macos_arm)
+    _path_prepend /opt/homebrew/bin /opt/homebrew/sbin
     _path_prepend /opt/homebrew/opt/llvm@20/bin
+    export BROWSER=${BROWSER:-open}
+    ;;
+  macos_x86_64)
+    _path_prepend /usr/local/bin /usr/local/sbin
     export BROWSER=${BROWSER:-open}
     ;;
   wsl)
@@ -332,6 +411,7 @@ fi
 # Aliases (quality-of-life wrappers; safe to extend per host)
 #------------------------------------------------------------------------------
 alias reload='source ~/.zshrc'
+alias reload-full='rm -f "${ZSH_CACHE_DIR}/geoip_location" && ZCFG_GEOIP_CACHE_AT=0 ZCFG_TAILSCALE_CACHE_AT=0 && source ~/.zshrc'
 alias zconf='${EDITOR:-nvim} ~/.zshrc'
 alias cls='(clear && printf "%s\n" "$PWD" && ls)'
 alias ls='ls --color'
@@ -347,6 +427,41 @@ alias gitlog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Cres
 #------------------------------------------------------------------------------
 # Functions (diagnostics + directory helpers)
 #------------------------------------------------------------------------------
+proxy_on() {
+  local host=${1:-127.0.0.1}
+  local port=${2:-10808}
+  local http_url="http://${host}:${port}"
+  local socks_url="socks5://${host}:${port}"
+
+  export http_proxy="$http_url"
+  export https_proxy="$http_url"
+  export all_proxy="$socks_url"
+  export HTTP_PROXY="$http_url"
+  export HTTPS_PROXY="$http_url"
+  export ALL_PROXY="$socks_url"
+
+  printf 'proxy: ON (http=%s, socks=%s)\n' "$http_url" "$socks_url"
+}
+
+proxy_off() {
+  unset http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY
+  echo "proxy: OFF"
+}
+
+proxy_status() {
+  local http="${http_proxy:-${HTTP_PROXY:-}}"
+  local socks="${all_proxy:-${ALL_PROXY:-}}"
+  if [[ -z $http && -z $socks ]]; then
+    echo "proxy: OFF"
+    return 0
+  fi
+  printf 'proxy: ON (http=%s, socks=%s)\n' "${http:-<unset>}" "${socks:-<unset>}"
+}
+
+alias proxyon='proxy_on'
+alias proxyoff='proxy_off'
+alias proxystatus='proxy_status'
+
 showpath() {
   for p in ${(s/:/)PATH}; do
     if [[ -e $p ]]; then
@@ -384,8 +499,14 @@ fi
 # Platform specific niceties (commands or env that only make sense per OS)
 #------------------------------------------------------------------------------
 case ${ZCFG[platform]} in
-  macos)
+  macos_arm)
     alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
+    export ARCHFLAGS="-arch arm64"
+    export PATH
+    ;;
+  macos_x86_64)
+    alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
+    export ARCHFLAGS="-arch x86_64"
     export PATH
     ;;
   wsl)
