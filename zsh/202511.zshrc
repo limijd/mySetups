@@ -392,8 +392,9 @@ case ${ZCFG[platform]} in
     export BROWSER=${BROWSER:-"/mnt/c/Windows/explorer.exe"}
     ;;
   linux)
-    [[ -d /snap/bin ]] && _path_append /snap/bin
-    [[ -d ${HOME}/install/scripts ]] && _path_append ${HOME}/install/scripts 
+    _path_append /snap/bin
+    _path_append ${HOME}/install/scripts 
+    _path_append ${HOME}/sandbox/github/fileSync25
     ;;
 esac
 
