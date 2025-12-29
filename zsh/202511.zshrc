@@ -393,6 +393,7 @@ case ${ZCFG[platform]} in
     ;;
   linux)
     [[ -d /snap/bin ]] && _path_append /snap/bin
+    [[ -d ${HOME}/install/scripts ]] && _path_append ${HOME}/install/scripts 
     ;;
 esac
 
