@@ -397,19 +397,11 @@ case ${ZCFG[platform]} in
     _path_append ${HOME}/install/flameshot
     _path_append ${HOME}/sandbox/github/fileSync25
     _path_append ${HOME}/install/anki/anki-latest
+    _path_append ${HOME}/install/x86_64@ubt24/anki/anki-latest
+    _path_append ${HOME}/install/x86_64@ubt24/nvim-0.11/bin
+    _path_append ${HOME}/sandbox/github/myScripts
     ;;
 esac
-
-# Example distro-specific tuning
-if [[ -f /etc/os-release ]]; then
-  case ${ID:-} in
-    ubuntu)
-      _path_prepend "${HOME}/install/x86_64@ubt24/nvim-0.11/bin" \
-                    "${HOME}/sandbox/github/myScripts" \
-                    "${HOME}/install/x86_64@ubt24/anki-launcher-25.07.5-linux"
-      ;;
-  esac
-fi
 
 #------------------------------------------------------------------------------
 # Aliases (quality-of-life wrappers; safe to extend per host)
