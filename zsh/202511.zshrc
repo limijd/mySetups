@@ -394,7 +394,9 @@ case ${ZCFG[platform]} in
   linux)
     _path_append /snap/bin
     _path_append ${HOME}/install/scripts 
+    _path_append ${HOME}/install/flameshot
     _path_append ${HOME}/sandbox/github/fileSync25
+    _path_append ${HOME}/install/anki/anki-latest
     ;;
 esac
 
