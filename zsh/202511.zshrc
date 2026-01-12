@@ -392,6 +392,9 @@ case ${ZCFG[platform]} in
     export BROWSER=${BROWSER:-"/mnt/c/Windows/explorer.exe"}
     ;;
   linux)
+    _path_prepend ${HOME}/sandbox/github/nvim-pro-kit/tools/linux_x86_64/nvim/latest
+    _path_prepend ${HOME}/install/x86_64@ubt24/Python-3.13.0/bin
+
     _path_append /snap/bin
     _path_append ${HOME}/install/scripts 
     _path_append ${HOME}/sandbox/github/fileSync25
