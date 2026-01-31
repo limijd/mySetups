@@ -371,6 +371,10 @@ zcfg_prompt_precmd() {
 add-zsh-hook precmd zcfg_prompt_precmd
 add-zsh-hook preexec zcfg_prompt_preexec
 
+# Send bell on each prompt to notify tmux when command completes
+_notify_bell() { printf '\a' }
+add-zsh-hook precmd _notify_bell
+
 #------------------------------------------------------------------------------
 # PATH (base + platform tweaks)
 # Start with user-local bin dirs, then branch per platform/distro.
@@ -394,6 +398,7 @@ case ${ZCFG[platform]} in
   linux)
     _path_prepend ${HOME}/sandbox/github/nvim-pro-kit/tools/linux_x86_64/nvim/latest
     _path_prepend ${HOME}/install/x86_64@ubt24/Python-3.13.0/bin
+    _path_prepend ${HOME}/sandbox/github/ai-doctool
 
     _path_append /snap/bin
     _path_append ${HOME}/install/scripts 
@@ -531,3 +536,6 @@ export PATH="$HOME/.npm-global/bin:$PATH"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# opencode
+export PATH=/home/wli/.opencode/bin:$PATH
