@@ -149,6 +149,9 @@ typeset -gF ZCFG_TAILSCALE_CACHE_AT=0
 typeset -g ZCFG_TAILSCALE_CACHE=""
 typeset -gF ZCFG_GEOIP_CACHE_AT=0
 typeset -g ZCFG_GEOIP_CACHE=""
+typeset -gF ZCFG_GIT_REMOTE_CACHE_AT=0
+typeset -g ZCFG_GIT_REMOTE_CACHE=""
+typeset -g ZCFG_GIT_REMOTE_REPO=""
 
 # Cache CPU temperature from `sensors` so we do not run it for every prompt render.
 zcfg_cpu_temp_segment() {
@@ -308,6 +311,192 @@ zcfg_geoip_segment() {
   fi
 }
 
+# Git remote status: show ahead/behind upstream and behind main
+# Uses caching with background refresh, handles offline gracefully
+# Displays: [↑2↓3] for upstream, [m↓15] for behind main, [⚡] for offline
+zcfg_git_remote_segment() {
+  # Skip if not in a git repo (reuse vcs_info detection, zero overhead)
+  [[ -z ${vcs_info_msg_0_} ]] && return 0
+
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || return 0
+
+  # Check exclusion: file in repo or global skip list
+  [[ -f "${repo_root}/.zsh_no_remote_check" ]] && return 0
+  if (( ${#ZCFG_GIT_REMOTE_SKIP_REPOS[@]} )); then
+    local skip_repo
+    for skip_repo in "${ZCFG_GIT_REMOTE_SKIP_REPOS[@]}"; do
+      [[ "${repo_root}" == "${~skip_repo}" ]] && return 0
+    done
+  fi
+
+  local now=$EPOCHREALTIME
+  local repo_hash=$(print -r -- "$repo_root" | md5sum | cut -c1-8)
+  local cache_file="${ZSH_CACHE_DIR}/git_remote_${repo_hash}"
+
+  # Memory cache valid for 10s (same repo only)
+  if [[ "$ZCFG_GIT_REMOTE_REPO" == "$repo_root" ]] && \
+     (( now - ZCFG_GIT_REMOTE_CACHE_AT < 10 )) && [[ -n $ZCFG_GIT_REMOTE_CACHE ]]; then
+    print -r -- "$ZCFG_GIT_REMOTE_CACHE"
+    return 0
+  fi
+
+  # Read from file cache
+  local cached_data=""
+  local file_mtime=0
+  if [[ -r $cache_file ]]; then
+    cached_data=$(<"$cache_file")
+    local -A file_stat
+    zstat -H file_stat "$cache_file" 2>/dev/null
+    file_mtime=${file_stat[mtime]:-0}
+  fi
+
+  # Parse cached data: ahead|behind|behind_main|offline
+  local ahead=0 behind=0 behind_main=0 offline=0
+  if [[ -n $cached_data ]]; then
+    ahead=${cached_data%%|*}
+    local rest=${cached_data#*|}
+    behind=${rest%%|*}
+    rest=${rest#*|}
+    behind_main=${rest%%|*}
+    offline=${rest#*|}
+  fi
+
+  # Build display string
+  local result=""
+  local upstream_part="" main_part=""
+
+  # Offline indicator
+  if (( offline )); then
+    result="%F{240}[⚡]%f"
+  fi
+
+  # Upstream ahead/behind: [↑2↓3]
+  if (( ahead > 0 || behind > 0 )); then
+    upstream_part="["
+    if (( ahead > 0 )); then
+      if (( ahead >= 1000 )); then
+        upstream_part+="%F{42}↑999+%f"
+      else
+        upstream_part+="%F{42}↑${ahead}%f"
+      fi
+    fi
+    if (( behind > 0 )); then
+      if (( behind >= 1000 )); then
+        upstream_part+="%F{214}↓999+%f"
+      else
+        upstream_part+="%F{214}↓${behind}%f"
+      fi
+    fi
+    upstream_part+="]"
+  fi
+
+  # Behind main: [m↓15]
+  # Skip if on main/master branch
+  local current_branch
+  current_branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+  if [[ "$current_branch" != "main" && "$current_branch" != "master" ]] && (( behind_main > 0 )); then
+    if (( behind_main >= 1000 )); then
+      main_part="%F{magenta}[m↓999+]%f"
+    else
+      main_part="%F{magenta}[m↓${behind_main}]%f"
+    fi
+  fi
+
+  # Combine parts
+  if (( offline )); then
+    # Show offline + any cached upstream/main data
+    if [[ -n $upstream_part || -n $main_part ]]; then
+      result="%F{240}⚡%f${upstream_part}${main_part}"
+    else
+      result="%F{240}[⚡]%f"
+    fi
+  else
+    result="${upstream_part}${main_part}"
+  fi
+
+  # Update memory cache
+  ZCFG_GIT_REMOTE_CACHE="$result"
+  ZCFG_GIT_REMOTE_CACHE_AT=$now
+  ZCFG_GIT_REMOTE_REPO="$repo_root"
+
+  # Background refresh if file cache older than 5 minutes
+  local file_age=$(( EPOCHSECONDS - file_mtime ))
+  if (( file_age > 300 )) || [[ ! -r $cache_file ]]; then
+    (
+      local branch
+      branch=$(git symbolic-ref --short HEAD 2>/dev/null) || exit 0
+
+      # Check connectivity with timeout (3s)
+      local is_offline=0
+      if ! timeout 3 git ls-remote --exit-code origin "refs/heads/${branch}" &>/dev/null; then
+        is_offline=1
+      fi
+
+      local new_ahead=0 new_behind=0 new_behind_main=0
+
+      if (( ! is_offline )); then
+        # Fetch current branch only (10s timeout)
+        timeout 10 git fetch origin "${branch}" --no-tags &>/dev/null
+
+        # Calculate ahead/behind upstream
+        local upstream
+        upstream=$(git rev-parse --abbrev-ref '@{upstream}' 2>/dev/null)
+        if [[ -n $upstream ]]; then
+          local counts
+          counts=$(git rev-list --count --left-right --max-count=1000 "HEAD...${upstream}" 2>/dev/null)
+          if [[ -n $counts ]]; then
+            new_ahead=${counts%%$'\t'*}
+            new_behind=${counts#*$'\t'}
+          fi
+        fi
+
+        # Calculate behind main/master
+        local main_ref=""
+        if git show-ref --verify --quiet refs/remotes/origin/main 2>/dev/null; then
+          main_ref="origin/main"
+        elif git show-ref --verify --quiet refs/remotes/origin/master 2>/dev/null; then
+          main_ref="origin/master"
+        fi
+
+        if [[ -n $main_ref ]]; then
+          new_behind_main=$(git rev-list --count --max-count=1000 "HEAD..${main_ref}" 2>/dev/null)
+          [[ -z $new_behind_main ]] && new_behind_main=0
+        fi
+      else
+        # Offline: try to use local refs
+        local upstream
+        upstream=$(git rev-parse --abbrev-ref '@{upstream}' 2>/dev/null)
+        if [[ -n $upstream ]]; then
+          local counts
+          counts=$(git rev-list --count --left-right --max-count=1000 "HEAD...${upstream}" 2>/dev/null)
+          if [[ -n $counts ]]; then
+            new_ahead=${counts%%$'\t'*}
+            new_behind=${counts#*$'\t'}
+          fi
+        fi
+
+        local main_ref=""
+        if git show-ref --verify --quiet refs/remotes/origin/main 2>/dev/null; then
+          main_ref="origin/main"
+        elif git show-ref --verify --quiet refs/remotes/origin/master 2>/dev/null; then
+          main_ref="origin/master"
+        fi
+
+        if [[ -n $main_ref ]]; then
+          new_behind_main=$(git rev-list --count --max-count=1000 "HEAD..${main_ref}" 2>/dev/null)
+          [[ -z $new_behind_main ]] && new_behind_main=0
+        fi
+      fi
+
+      # Write cache
+      print -r -- "${new_ahead}|${new_behind}|${new_behind_main}|${is_offline}" > "$cache_file"
+    ) &>/dev/null &!
+  fi
+
+  [[ -n $result ]] && print -r -- "$result"
+}
+
 zcfg_prompt_preexec() {
   ZCFG_CMD_STARTED_AT=$EPOCHREALTIME
 }
@@ -338,6 +527,8 @@ zcfg_prompt_precmd() {
   local cwd="%F{220}%d%f"
   local git_segment=""
   [[ -n ${vcs_info_msg_0_} ]] && git_segment=" ${vcs_info_msg_0_}"
+  local git_remote_segment=$(zcfg_git_remote_segment)
+  [[ -n $git_remote_segment ]] && git_segment+=" ${git_remote_segment}"
 
   # Display right prompt time + duration for commands slower than 100ms.
   local duration_segment=""
@@ -491,6 +682,48 @@ mkcd() {
 up() {
   local count=${1:-1}
   while (( count-- > 0 )); do cd .. || return; done
+}
+
+# Force refresh git remote status cache for current repo
+git-refresh() {
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    echo "Not in a git repository"
+    return 1
+  }
+  local repo_hash=$(print -r -- "$repo_root" | md5sum | cut -c1-8)
+  local cache_file="${ZSH_CACHE_DIR}/git_remote_${repo_hash}"
+  rm -f "$cache_file"
+  ZCFG_GIT_REMOTE_CACHE_AT=0
+  ZCFG_GIT_REMOTE_CACHE=""
+  echo "Git remote cache cleared for: $repo_root"
+}
+
+# Skip git remote status checks for current repo
+git-remote-skip() {
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    echo "Not in a git repository"
+    return 1
+  }
+  touch "${repo_root}/.zsh_no_remote_check"
+  echo "Git remote checks disabled for: $repo_root"
+  echo "Created: ${repo_root}/.zsh_no_remote_check"
+}
+
+# Re-enable git remote status checks for current repo
+git-remote-unskip() {
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    echo "Not in a git repository"
+    return 1
+  }
+  if [[ -f "${repo_root}/.zsh_no_remote_check" ]]; then
+    rm -f "${repo_root}/.zsh_no_remote_check"
+    echo "Git remote checks re-enabled for: $repo_root"
+  else
+    echo "Git remote checks were not disabled for: $repo_root"
+  fi
 }
 
 #------------------------------------------------------------------------------
