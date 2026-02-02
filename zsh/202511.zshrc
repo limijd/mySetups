@@ -600,6 +600,7 @@ case ${ZCFG[platform]} in
     _path_append ${HOME}/install/x86_64@ubt24/nvim-0.11/bin
     _path_append ${HOME}/sandbox/github/myScripts
     _path_append ${HOME}/.claude/skills/w-skill-scripts/scripts
+    _path_append ${HOME}/.nvm/versions/node/v20.19.6/bin/
     ;;
 esac
 
@@ -773,3 +774,5 @@ export NVM_DIR="$HOME/.nvm"
 
 # opencode
 export PATH=/home/wli/.opencode/bin:$PATH
+
+alias codex='/home/wli/.codex/bin/codex-tmux.sh'
