@@ -563,7 +563,14 @@ add-zsh-hook precmd zcfg_prompt_precmd
 add-zsh-hook preexec zcfg_prompt_preexec
 
 # Send bell on each prompt to notify tmux when command completes
-_notify_bell() { printf '\a' }
+# Skip bell for claude to avoid notification when switching tabs quickly
+typeset -g _ZCFG_LAST_CMD=""
+_notify_bell_preexec() { _ZCFG_LAST_CMD="$1" }
+_notify_bell() {
+  [[ "$_ZCFG_LAST_CMD" == claude* ]] || printf '\a'
+  _ZCFG_LAST_CMD=""
+}
+add-zsh-hook preexec _notify_bell_preexec
 add-zsh-hook precmd _notify_bell
 
 #------------------------------------------------------------------------------
