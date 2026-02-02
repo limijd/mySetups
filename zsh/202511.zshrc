@@ -408,6 +408,7 @@ case ${ZCFG[platform]} in
     _path_append ${HOME}/install/x86_64@ubt24/anki/anki-latest
     _path_append ${HOME}/install/x86_64@ubt24/nvim-0.11/bin
     _path_append ${HOME}/sandbox/github/myScripts
+    _path_append ${HOME}/.claude/skills/w-skill-scripts/scripts
     ;;
 esac
 
