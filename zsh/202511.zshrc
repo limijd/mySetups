@@ -97,8 +97,18 @@ export PAGER=${PAGER:-less}
 HISTFILE=${HISTFILE:-${HOME}/.zsh_history}
 HISTSIZE=200000
 SAVEHIST=$HISTSIZE
-setopt APPEND_HISTORY SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_SPACE \
-       EXTENDED_HISTORY INC_APPEND_HISTORY
+# 简单可预测的 history：每个窗口独立，退出时保存
+setopt APPEND_HISTORY        # 退出时追加到历史文件（不覆盖）
+setopt HIST_IGNORE_SPACE     # 空格开头的命令不记录（用于隐藏敏感命令）
+setopt EXTENDED_HISTORY      # 保存时间戳
+
+# 明确关闭那些"智能"选项
+unsetopt SHARE_HISTORY       # 不要跨窗口实时共享
+unsetopt INC_APPEND_HISTORY  # 不要立即写入文件
+unsetopt HIST_IGNORE_DUPS    # 不要吞掉重复命令
+unsetopt HIST_IGNORE_ALL_DUPS
+unsetopt HIST_EXPIRE_DUPS_FIRST
+unsetopt HIST_FIND_NO_DUPS
 
 setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS CORRECT \
        INTERACTIVE_COMMENTS LONG_LIST_JOBS NO_BEEP
