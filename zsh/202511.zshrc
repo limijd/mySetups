@@ -583,6 +583,16 @@ _notify_bell() {
 add-zsh-hook preexec _notify_bell_preexec
 add-zsh-hook precmd _notify_bell
 
+# Tmux @running indicator: show ⚡ in window tab when command is running
+_tmux_running_preexec() {
+  [[ -n "$TMUX" ]] && tmux set-option -qw @running 1
+}
+_tmux_running_precmd() {
+  [[ -n "$TMUX" ]] && tmux set-option -quw @running
+}
+add-zsh-hook preexec _tmux_running_preexec
+add-zsh-hook precmd _tmux_running_precmd
+
 #------------------------------------------------------------------------------
 # PATH (base + platform tweaks)
 # Start with user-local bin dirs, then branch per platform/distro.
