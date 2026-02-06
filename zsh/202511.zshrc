@@ -323,7 +323,7 @@ zcfg_geoip_segment() {
 
 # Git remote status: show ahead/behind upstream and behind main
 # Uses caching with background refresh, handles offline gracefully
-# Displays: [↑2↓3] for upstream, [m↓15] for behind main, [⚡] for offline
+# Displays: [↑2↓3] for upstream, [m↓15] for behind main, [⛔] for offline
 zcfg_git_remote_segment() {
   # Skip if not in a git repo (reuse vcs_info detection, zero overhead)
   [[ -z ${vcs_info_msg_0_} ]] && return 0
@@ -378,7 +378,7 @@ zcfg_git_remote_segment() {
 
   # Offline indicator
   if (( offline )); then
-    result="%F{240}[⚡]%f"
+    result="%F{240}[⛔]%f"
   fi
 
   # Upstream ahead/behind: [↑2↓3]
@@ -417,9 +417,9 @@ zcfg_git_remote_segment() {
   if (( offline )); then
     # Show offline + any cached upstream/main data
     if [[ -n $upstream_part || -n $main_part ]]; then
-      result="%F{240}⚡%f${upstream_part}${main_part}"
+      result="%F{240}⛔%f${upstream_part}${main_part}"
     else
-      result="%F{240}[⚡]%f"
+      result="%F{240}[⛔]%f"
     fi
   else
     result="${upstream_part}${main_part}"
