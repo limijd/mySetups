@@ -22,7 +22,7 @@ MODULES=(
     "02_shell_setup.sh|设置默认 Shell (zsh)"
     "03_repos_dotfiles.sh|克隆仓库 + Dotfiles 软链接"
     "04_rust.sh|Rust 工具链 (rustup)"
-    "05_python_uv.sh|Python 包管理器 (uv)"
+    "05_python_pyenv.sh|Python 版本管理 (pyenv)"
     "06_nodejs_nvm.sh|Node.js (nvm)"
     "07_security.sh|安全加固 (ufw + fail2ban)"
     "08_system_tuning.sh|系统调优 (sysctl, limits, SSH)"

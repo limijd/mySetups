@@ -12,7 +12,7 @@
 #   - check_cmd: 检查命令是否存在
 
 # 防止重复加载
-[[ -n "$_BOOTSTRAP_COMMON_LOADED" ]] && return 0
+[[ -n "${_BOOTSTRAP_COMMON_LOADED:-}" ]] && return 0
 _BOOTSTRAP_COMMON_LOADED=1
 
 # ═══════════════════════════════════════════════════════════════════════════════
