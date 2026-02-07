@@ -443,11 +443,11 @@ zcfg_git_remote_segment() {
         exit 0
       fi
 
-      # Check connectivity with timeout (5s)
+      # Check connectivity with timeout (10s)
       # Use BatchMode to avoid SSH passkey/password prompts blocking the bg job
       local is_offline=0
       if ! GIT_TERMINAL_PROMPT=0 GIT_SSH_COMMAND="ssh -o BatchMode=yes" \
-           timeout 5 git ls-remote origin HEAD &>/dev/null; then
+           timeout 10 git ls-remote origin HEAD &>/dev/null; then
         is_offline=1
       fi
 
