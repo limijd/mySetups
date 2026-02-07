@@ -378,7 +378,7 @@ zcfg_git_remote_segment() {
 
   # Offline indicator
   if (( offline )); then
-    result="%F{240}[⛔]%f"
+    result="%F{240}[⊘]%f"
   fi
 
   # Upstream ahead/behind: [↑2↓3]
@@ -417,9 +417,9 @@ zcfg_git_remote_segment() {
   if (( offline )); then
     # Show offline + any cached upstream/main data
     if [[ -n $upstream_part || -n $main_part ]]; then
-      result="%F{240}⛔%f${upstream_part}${main_part}"
+      result="%F{240}⊘%f${upstream_part}${main_part}"
     else
-      result="%F{240}[⛔]%f"
+      result="%F{240}[⊘]%f"
     fi
   else
     result="${upstream_part}${main_part}"
@@ -437,9 +437,17 @@ zcfg_git_remote_segment() {
       local branch
       branch=$(git symbolic-ref --short HEAD 2>/dev/null) || exit 0
 
-      # Check connectivity with timeout (3s)
+      # Skip entirely if no remote named "origin" exists
+      if ! git remote get-url origin &>/dev/null; then
+        print -r -- "0|0|0|0" > "$cache_file"
+        exit 0
+      fi
+
+      # Check connectivity with timeout (5s)
+      # Use BatchMode to avoid SSH passkey/password prompts blocking the bg job
       local is_offline=0
-      if ! timeout 3 git ls-remote --exit-code origin "refs/heads/${branch}" &>/dev/null; then
+      if ! GIT_TERMINAL_PROMPT=0 GIT_SSH_COMMAND="ssh -o BatchMode=yes" \
+           timeout 5 git ls-remote origin HEAD &>/dev/null; then
         is_offline=1
       fi
 
@@ -787,19 +795,34 @@ esac
 #------------------------------------------------------------------------------
 [[ -r ~/.zshrc.local ]] && source ~/.zshrc.local
 
+export PATH="$HOME/.npm-global/bin:$PATH"
+
+# Lazy-load nvm: defers ~10s startup cost until first use of node/npm/npx/nvm
+export NVM_DIR="$HOME/.nvm"
+if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+  _nvm_lazy_load() {
+    unset -f nvm node npm npx 2>/dev/null
+    printf -- "[Info] loading nvm (first use)...\n"
+    \. "$NVM_DIR/nvm.sh"
+    [[ -s "$NVM_DIR/bash_completion" ]] && \. "$NVM_DIR/bash_completion"
+  }
+  nvm()  { _nvm_lazy_load; nvm  "$@" }
+  node() { _nvm_lazy_load; node "$@" }
+  npm()  { _nvm_lazy_load; npm  "$@" }
+  npx()  { _nvm_lazy_load; npx  "$@" }
+fi
+
+printf -- "[Info] setting rust/cargo\n"
+. "$HOME/.cargo/env"            
+
+# opencode
+export PATH=/home/wli/.opencode/bin:$PATH
+
+alias codex='/home/wli/.codex/bin/codex-tmux.sh'
+
 if (( ${+ZCFG_LOAD_STARTED_AT} )); then
   typeset -F ZCFG_LOAD_ELAPSED
   ZCFG_LOAD_ELAPSED=$(( EPOCHREALTIME - ZCFG_LOAD_STARTED_AT ))
   # Quick startup telemetry so slow changes are easy to notice.
   printf -- "[Info] .zshrc loaded in %.2fs\n" "$ZCFG_LOAD_ELAPSED"
 fi
-export PATH="$HOME/.npm-global/bin:$PATH"
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# opencode
-export PATH=/home/wli/.opencode/bin:$PATH
-
-alias codex='/home/wli/.codex/bin/codex-tmux.sh'
