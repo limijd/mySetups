@@ -95,7 +95,7 @@ export VISUAL=$EDITOR
 export PAGER=${PAGER:-less}
 
 HISTFILE=${HISTFILE:-${HOME}/.zsh_history}
-HISTSIZE=200000
+HISTSIZE=300
 SAVEHIST=$HISTSIZE
 # 简单可预测的 history：每个窗口独立，退出时保存
 setopt APPEND_HISTORY        # 退出时追加到历史文件（不覆盖）
@@ -795,9 +795,19 @@ if (( ${+ZCFG_LOAD_STARTED_AT} )); then
 fi
 export PATH="$HOME/.npm-global/bin:$PATH"
 
+# nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - zsh)"
+eval "$(pyenv virtualenv-init -)"
+
+# rust 
+source "$HOME/.cargo/env"
 
 # opencode
 export PATH=/home/wli/.opencode/bin:$PATH
