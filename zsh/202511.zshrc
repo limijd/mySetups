@@ -655,6 +655,7 @@ alias his='history 1'
 alias vi='${EDITOR:-nvim}'
 alias tn='tmux rename-window "$(basename "$PWD")"'
 alias gitlog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
+alias aria2c="aria2c --file-allocation=none --check-integrity=true -j 8 -s 8 -x 10"
 
 #------------------------------------------------------------------------------
 # Functions (diagnostics + directory helpers)
@@ -769,6 +770,12 @@ if _have direnv; then
   eval "$(direnv hook zsh)"
 fi
 
+# pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - zsh)"
+eval "$(pyenv virtualenv-init -)"
+
 #------------------------------------------------------------------------------
 # Platform specific niceties (commands or env that only make sense per OS)
 #------------------------------------------------------------------------------
@@ -826,24 +833,4 @@ if (( ${+ZCFG_LOAD_STARTED_AT} )); then
   # Quick startup telemetry so slow changes are easy to notice.
   printf -- "[Info] .zshrc loaded in %.2fs\n" "$ZCFG_LOAD_ELAPSED"
 fi
-<<<<<<< HEAD
-export PATH="$HOME/.npm-global/bin:$PATH"
 
-# nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init - zsh)"
-eval "$(pyenv virtualenv-init -)"
-
-# rust 
-source "$HOME/.cargo/env"
-
-# opencode
-export PATH=/home/wli/.opencode/bin:$PATH
-
-alias codex='/home/wli/.codex/bin/codex-tmux.sh'
