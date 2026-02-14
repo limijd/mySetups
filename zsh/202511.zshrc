@@ -526,9 +526,9 @@ zcfg_prompt_precmd() {
   # Left prompt shows command status, user@host, cwd, and git snapshot.
   local status_segment
   if (( exit_status == 0 )); then
-    status_segment="%F{42}[ok]%f"
+    status_segment="%B%F{78}[ok]%f%b"
   else
-    status_segment="%F{196}[${exit_status}]%f"
+    status_segment="%B%F{196}[${exit_status}]%f%b"
   fi
 
   local user_color
@@ -537,12 +537,12 @@ zcfg_prompt_precmd() {
   elif [[ -n $SSH_CONNECTION ]]; then
     user_color="%F{214}"
   else
-    user_color="%F{45}"
+    user_color="%F{81}"
   fi
 
   local host_ref=${ZCFG[host]:-$(hostname -s 2>/dev/null)}
-  local user_host="${user_color}%n@${host_ref}%f"
-  local cwd="%F{220}%d%f"
+  local user_host="%B${user_color}%n@${host_ref}%f%b"
+  local cwd="%B%F{221}%d%f%b"
   local git_segment=""
   [[ -n ${vcs_info_msg_0_} ]] && git_segment=" ${vcs_info_msg_0_}"
   local git_remote_segment=$(zcfg_git_remote_segment)
@@ -773,8 +773,10 @@ fi
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init - zsh)"
-eval "$(pyenv virtualenv-init -)"
+if _have pyenv; then
+  eval "$(pyenv init - zsh)"
+  eval "$(pyenv virtualenv-init -)"
+fi
 
 #------------------------------------------------------------------------------
 # Platform specific niceties (commands or env that only make sense per OS)
@@ -794,6 +796,9 @@ case ${ZCFG[platform]} in
     export WSLENV="PATH/l:${WSLENV}"
     ;;
   linux)
+    export GTK_IM_MODULE=fcitx
+    export QT_IM_MODULE=fcitx
+    export XMODIFIERS=@im=fcitx
     ;;
 esac
 
@@ -819,8 +824,10 @@ if [[ -s "$NVM_DIR/nvm.sh" ]]; then
   npx()  { _nvm_lazy_load; npx  "$@" }
 fi
 
-printf -- "[Info] setting rust/cargo\n"
-. "$HOME/.cargo/env"            
+if [[ -r "$HOME/.cargo/env" ]]; then
+  printf -- "[Info] setting rust/cargo\n"
+  . "$HOME/.cargo/env"
+fi            
 
 # opencode
 export PATH=/home/wli/.opencode/bin:$PATH
