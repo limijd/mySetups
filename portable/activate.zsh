@@ -1,10 +1,10 @@
 #------------------------------------------------------------------------------
 # Portable zsh config — minimal, zero footprint on customer machines
-# Usage: source /path/to/portable/zsh.zshrc
+# Usage: source /path/to/portable/activate.zsh
 #------------------------------------------------------------------------------
 
 # Auto-detect portable directory from this file's location
-PORTABLE_DIR="${0:A:h}"
+_TEMP_PORTABLE_TOOLKIT_="${0:A:h}"
 
 # Temp directory — all writes go here, nothing touches $HOME
 _portable_tmp="/tmp/portable-${USER:-$(id -un)}"
@@ -23,10 +23,10 @@ _portable_has_fuse() {
 }
 
 # nvim: AppImage with FUSE fallback
-_portable_nvim_appimage="${PORTABLE_DIR}/nvim-0.11.4-${_portable_arch}.appimage"
+_portable_nvim_appimage="${_TEMP_PORTABLE_TOOLKIT_}/nvim-0.11.4-${_portable_arch}.appimage"
 if [[ -x "$_portable_nvim_appimage" ]]; then
   if _portable_has_fuse; then
-    alias nvim="'${_portable_nvim_appimage}' -u '${PORTABLE_DIR}/vim.vimrc'"
+    alias nvim="'${_portable_nvim_appimage}' -u '${_TEMP_PORTABLE_TOOLKIT_}/vim.vimrc'"
     export EDITOR="${_portable_nvim_appimage}"
   else
     # Lazy extract on first use, reuse across sessions
@@ -38,7 +38,7 @@ if [[ -x "$_portable_nvim_appimage" ]]; then
         mkdir -p "$_portable_nvim_extract_dir"
         (cd "$_portable_nvim_extract_dir" && "$_portable_nvim_appimage" --appimage-extract) &>/dev/null
       fi
-      "$_portable_nvim_extracted" -u "${PORTABLE_DIR}/vim.vimrc" "$@"
+      "$_portable_nvim_extracted" -u "${_TEMP_PORTABLE_TOOLKIT_}/vim.vimrc" "$@"
     }
     alias nvim='_portable_nvim'
     # EDITOR wrapper script so external programs (git commit, etc.) can find nvim
@@ -55,7 +55,7 @@ if [ ! -x "$NVIM_BIN" ]; then
 fi
 exec "$NVIM_BIN" -u "$VIMRC" "$@"
 WRAPPER
-    sed -i "s|__EXTRACT_DIR__|${_portable_nvim_extract_dir}|;s|__APPIMAGE__|${_portable_nvim_appimage}|;s|__VIMRC__|${PORTABLE_DIR}/vim.vimrc|" "$_portable_editor"
+    sed -i "s|__EXTRACT_DIR__|${_portable_nvim_extract_dir}|;s|__APPIMAGE__|${_portable_nvim_appimage}|;s|__VIMRC__|${_TEMP_PORTABLE_TOOLKIT_}/vim.vimrc|" "$_portable_editor"
     chmod +x "$_portable_editor"
     export EDITOR="${_portable_editor}"
   fi
@@ -64,15 +64,15 @@ WRAPPER
 fi
 
 # rg: static binary
-_portable_rg_bin="${PORTABLE_DIR}/rg.${_portable_arch}"
+_portable_rg_bin="${_TEMP_PORTABLE_TOOLKIT_}/rg.${_portable_arch}"
 if [[ -x "$_portable_rg_bin" ]]; then
   alias rg="'${_portable_rg_bin}'"
 fi
 
 # tmux: static binary with config
-_portable_tmux_bin="${PORTABLE_DIR}/tmux.${_portable_arch}"
+_portable_tmux_bin="${_TEMP_PORTABLE_TOOLKIT_}/tmux.${_portable_arch}"
 if [[ -x "$_portable_tmux_bin" ]]; then
-  alias tmux="'${_portable_tmux_bin}' -f '${PORTABLE_DIR}/tmux.conf'"
+  alias tmux="'${_portable_tmux_bin}' -f '${_TEMP_PORTABLE_TOOLKIT_}/tmux.conf'"
 fi
 
 #------------------------------------------------------------------------------
@@ -113,4 +113,4 @@ alias cls='(clear && printf "%s\n" "$PWD" && ls)'
 alias gitlog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
 alias tn='tmux rename-window "$(basename "$PWD")"'
 
-echo "[portable] Activated from ${PORTABLE_DIR} (arch: ${_portable_arch})"
+echo "[portable] Activated from ${_TEMP_PORTABLE_TOOLKIT_} (arch: ${_portable_arch})"

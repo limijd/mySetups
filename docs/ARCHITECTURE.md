@@ -25,10 +25,10 @@ A self-contained toolkit for customer work environments. Source one file to acti
 
 ```bash
 # zsh
-source /path/to/portable/zsh.zshrc
+source /path/to/portable/activate.zsh
 
 # tcsh
-setenv PORTABLE_DIR /path/to/portable; source /path/to/portable/tcsh.cshrc
+setenv _TEMP_PORTABLE_TOOLKIT_ /path/to/portable; source /path/to/portable/activate.csh
 ```
 
 ### Design Principles
@@ -43,8 +43,8 @@ setenv PORTABLE_DIR /path/to/portable; source /path/to/portable/tcsh.cshrc
 
 | File | Purpose |
 |------|---------|
-| `zsh.zshrc` | Minimal zsh config (~100 lines) with auto-detect dir, tool aliases, ultra-minimal prompt |
-| `tcsh.cshrc` | Minimal tcsh config (~100 lines) with PORTABLE_DIR env var, tool aliases |
+| `activate.zsh` | Minimal zsh config (~100 lines) with auto-detect dir, tool aliases, ultra-minimal prompt |
+| `activate.csh` | Minimal tcsh config (~100 lines) with `_TEMP_PORTABLE_TOOLKIT_` env var, tool aliases |
 | `vim.vimrc` | Bare essentials vim config (~10 lines) loaded via `-u` flag |
 | `tmux.conf` | tmux config loaded via `-f` flag |
 | `nvim-*.appimage` | Neovim AppImages for aarch64 and x86_64 |

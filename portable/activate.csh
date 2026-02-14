@@ -1,15 +1,15 @@
 #!/bin/csh
 #------------------------------------------------------------------------------
 # Portable tcsh config — minimal, zero footprint on customer machines
-# Usage: setenv PORTABLE_DIR /path/to/portable; source /path/to/portable/tcsh.cshrc
+# Usage: setenv _TEMP_PORTABLE_TOOLKIT_ /path/to/portable; source /path/to/portable/activate.csh
 #------------------------------------------------------------------------------
 
 if (! $?prompt) exit 0
 
-# Auto-detect: require PORTABLE_DIR to be set
-if (! $?PORTABLE_DIR) then
-    echo "[portable] ERROR: set PORTABLE_DIR before sourcing. Example:"
-    echo "  setenv PORTABLE_DIR /path/to/portable"
+# Auto-detect: require _TEMP_PORTABLE_TOOLKIT_ to be set
+if (! $?_TEMP_PORTABLE_TOOLKIT_) then
+    echo "[portable] ERROR: set _TEMP_PORTABLE_TOOLKIT_ before sourcing. Example:"
+    echo "  setenv _TEMP_PORTABLE_TOOLKIT_ /path/to/portable"
     echo "  source /path/to/portable/tcsh.cshrc"
     exit 1
 endif
@@ -26,12 +26,12 @@ set _portable_arch = `uname -m`
 #------------------------------------------------------------------------------
 
 # nvim: AppImage with FUSE fallback
-set _nvim_appimage = "${PORTABLE_DIR}/nvim-0.11.4-${_portable_arch}.appimage"
+set _nvim_appimage = "${_TEMP_PORTABLE_TOOLKIT_}/nvim-0.11.4-${_portable_arch}.appimage"
 if ( -x "$_nvim_appimage" ) then
     # Check FUSE
     fusermount --version >& /dev/null
     if ( $status == 0 ) then
-        alias nvim "'${_nvim_appimage}' -u '${PORTABLE_DIR}/vim.vimrc'"
+        alias nvim "'${_nvim_appimage}' -u '${_TEMP_PORTABLE_TOOLKIT_}/vim.vimrc'"
         setenv EDITOR "${_nvim_appimage}"
     else
         # No FUSE: write a wrapper script for lazy extraction
@@ -41,7 +41,7 @@ if ( -x "$_nvim_appimage" ) then
         echo '#!/bin/sh' > "$_nvim_wrapper"
         echo "EXTRACT_DIR='${_nvim_extract_dir}'" >> "$_nvim_wrapper"
         echo "APPIMAGE='${_nvim_appimage}'" >> "$_nvim_wrapper"
-        echo "VIMRC='${PORTABLE_DIR}/vim.vimrc'" >> "$_nvim_wrapper"
+        echo "VIMRC='${_TEMP_PORTABLE_TOOLKIT_}/vim.vimrc'" >> "$_nvim_wrapper"
         echo 'NVIM_BIN="${EXTRACT_DIR}/squashfs-root/usr/bin/nvim"' >> "$_nvim_wrapper"
         echo 'if [ ! -x "$NVIM_BIN" ]; then' >> "$_nvim_wrapper"
         echo '  echo "[portable] Extracting nvim AppImage (no FUSE)..."' >> "$_nvim_wrapper"
@@ -57,15 +57,15 @@ if ( -x "$_nvim_appimage" ) then
 endif
 
 # rg: static binary
-set _rg_bin = "${PORTABLE_DIR}/rg.${_portable_arch}"
+set _rg_bin = "${_TEMP_PORTABLE_TOOLKIT_}/rg.${_portable_arch}"
 if ( -x "$_rg_bin" ) then
     alias rg "'$_rg_bin'"
 endif
 
 # tmux: static binary with config
-set _tmux_bin = "${PORTABLE_DIR}/tmux.${_portable_arch}"
+set _tmux_bin = "${_TEMP_PORTABLE_TOOLKIT_}/tmux.${_portable_arch}"
 if ( -x "$_tmux_bin" ) then
-    alias tmux "'$_tmux_bin' -f '${PORTABLE_DIR}/tmux.conf'"
+    alias tmux "'$_tmux_bin' -f '${_TEMP_PORTABLE_TOOLKIT_}/tmux.conf'"
 endif
 
 #------------------------------------------------------------------------------
@@ -103,4 +103,4 @@ alias his 'history'
 alias cls '(clear; pwd; ll; ls)'
 alias gitlog "git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
 
-echo "[portable] Activated from ${PORTABLE_DIR} (arch: ${_portable_arch})"
+echo "[portable] Activated from ${_TEMP_PORTABLE_TOOLKIT_} (arch: ${_portable_arch})"
