@@ -1,17 +1,26 @@
 #!/bin/csh
 #------------------------------------------------------------------------------
 # Portable tcsh config — minimal, zero footprint on customer machines
-# Usage: setenv _TEMP_PORTABLE_TOOLKIT_ /path/to/portable; source /path/to/portable/activate.csh
+# Usage: source /path/to/portable/activate.csh
 #------------------------------------------------------------------------------
 
 if (! $?prompt) exit 0
 
-# Auto-detect: require _TEMP_PORTABLE_TOOLKIT_ to be set
+# Auto-detect directory from the source command in history
 if (! $?_TEMP_PORTABLE_TOOLKIT_) then
-    echo "[portable] ERROR: set _TEMP_PORTABLE_TOOLKIT_ before sourcing. Example:"
-    echo "  setenv _TEMP_PORTABLE_TOOLKIT_ /path/to/portable"
-    echo "  source /path/to/portable/tcsh.cshrc"
-    exit 1
+    set _src_cmd = `history -h 1 | head -1`
+    set _src_file = `echo "$_src_cmd" | sed 's/^source  *//'`
+    if ( "$_src_file" != "" && "$_src_file" != "$_src_cmd" ) then
+        set _src_dir = `dirname "$_src_file"`
+        setenv _TEMP_PORTABLE_TOOLKIT_ `cd "$_src_dir" && pwd`
+    endif
+    unset _src_cmd _src_file _src_dir
+    if ( "$_TEMP_PORTABLE_TOOLKIT_" == "" ) then
+        echo "[portable] ERROR: auto-detect failed. Please set manually:"
+        echo "  setenv _TEMP_PORTABLE_TOOLKIT_ /path/to/portable"
+        echo "  source /path/to/portable/activate.csh"
+        exit 1
+    endif
 endif
 
 # Temp directory
