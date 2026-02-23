@@ -159,6 +159,8 @@ typeset -gF ZCFG_TAILSCALE_CACHE_AT=0
 typeset -g ZCFG_TAILSCALE_CACHE=""
 typeset -gF ZCFG_GEOIP_CACHE_AT=0
 typeset -g ZCFG_GEOIP_CACHE=""
+typeset -gF ZCFG_OLLAMA_CACHE_AT=0
+typeset -g ZCFG_OLLAMA_CACHE=""
 typeset -gF ZCFG_GIT_REMOTE_CACHE_AT=0
 typeset -g ZCFG_GIT_REMOTE_CACHE=""
 typeset -g ZCFG_GIT_REMOTE_REPO=""
@@ -256,6 +258,63 @@ zcfg_tailscale_segment() {
   ZCFG_TAILSCALE_CACHE="${ts_color}${ts_symbol}%f"
   ZCFG_TAILSCALE_CACHE_AT=$now
   print -r -- "$ZCFG_TAILSCALE_CACHE"
+}
+
+# Cache Ollama status: show running model(s) in prompt.
+# Only visible when ollama service is active; hidden otherwise.
+#   🦙model  = model actively loaded (green)
+#   🦙       = service running, no model loaded (dim cyan)
+zcfg_ollama_segment() {
+  _have ollama || return 0
+
+  local now=$EPOCHREALTIME
+  if (( now - ZCFG_OLLAMA_CACHE_AT < 10 )) && [[ -n $ZCFG_OLLAMA_CACHE ]]; then
+    print -r -- "$ZCFG_OLLAMA_CACHE"
+    return 0
+  fi
+
+  # Quick check: is ollama service running?
+  # systemctl for Linux, pgrep fallback for macOS/other
+  local is_running=0
+  if _have systemctl; then
+    systemctl is-active --quiet ollama 2>/dev/null && is_running=1
+  else
+    pgrep -x ollama &>/dev/null && is_running=1
+  fi
+
+  if (( ! is_running )); then
+    ZCFG_OLLAMA_CACHE=""
+    ZCFG_OLLAMA_CACHE_AT=$now
+    return 0
+  fi
+
+  # Get running models (local API call, typically <50ms)
+  local ps_output
+  ps_output=$(timeout 2 ollama ps 2>/dev/null | tail -n +2)
+
+  local result
+  if [[ -n $ps_output ]]; then
+    local -a model_names=()
+    local line
+    for line in ${(f)ps_output}; do
+      local name=${line%% *}
+      name=${name%:latest}
+      model_names+=("$name")
+    done
+
+    if (( ${#model_names[@]} > 1 )); then
+      result="%F{42}🦙${model_names[1]}+$((${#model_names[@]}-1))%f"
+    else
+      result="%F{42}🦙${model_names[1]}%f"
+    fi
+  else
+    # Service running but no model loaded
+    result="%F{117}🦙%f"
+  fi
+
+  ZCFG_OLLAMA_CACHE="$result"
+  ZCFG_OLLAMA_CACHE_AT=$now
+  print -r -- "$ZCFG_OLLAMA_CACHE"
 }
 
 # Cache public IP geolocation with background refresh.
@@ -563,10 +622,12 @@ zcfg_prompt_precmd() {
   local time_segment="%F{244}%*%f"
   local cpu_temp_segment=$(zcfg_cpu_temp_segment)
   local tailscale_segment=$(zcfg_tailscale_segment)
+  local ollama_segment=$(zcfg_ollama_segment)
   local geoip_segment=$(zcfg_geoip_segment)
   local -a rprompt_parts=()
   [[ -n $geoip_segment ]] && rprompt_parts+="$geoip_segment"
   [[ -n $tailscale_segment ]] && rprompt_parts+="$tailscale_segment"
+  [[ -n $ollama_segment ]] && rprompt_parts+="$ollama_segment"
   [[ -n $cpu_temp_segment ]] && rprompt_parts+="$cpu_temp_segment"
   [[ -n $duration_segment ]] && rprompt_parts+=("%F{244}${duration_segment}%f")
   rprompt_parts+="$time_segment"
