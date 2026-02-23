@@ -631,10 +631,21 @@ zcfg_prompt_precmd() {
   [[ -n $cpu_temp_segment ]] && rprompt_parts+="$cpu_temp_segment"
   [[ -n $duration_segment ]] && rprompt_parts+=("%F{244}${duration_segment}%f")
   rprompt_parts+="$time_segment"
-  RPROMPT="${(j: :)rprompt_parts}"
+  local status_line="${(j: :)rprompt_parts}"
+  RPROMPT=""
+
+  # Right-align status on line 2: calculate visible width, pad with spaces
+  local zero='%([BSUbfksu]|([FK]|){*})'
+  local vis_text=${(S%%)status_line//$~zero/}
+  local vis_len=${#vis_text}
+  # Emoji are 2 cells wide but ${#} counts as 1
+  [[ $vis_text == *📍* ]] && (( vis_len++ ))
+  [[ $vis_text == *🦙* ]] && (( vis_len++ ))
+  local pad=$(( ${COLUMNS:-80} - vis_len ))
+  (( pad < 0 )) && pad=0
 
   local symbol='%(!.#.$)'  # show # for root shells
-  PROMPT="${status_segment} ${user_host} ${cwd}${git_segment}"$'\n'"%F{111}${symbol}%f "
+  PROMPT="${status_segment} ${user_host} ${cwd}${git_segment}"$'\n'"${(l:$pad:: :)}${status_line}"$'\n'"%F{111}${symbol}%f "
   ZCFG_CMD_STARTED_AT=0
 }
 
