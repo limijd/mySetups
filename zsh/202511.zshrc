@@ -902,9 +902,9 @@ if [[ -r "$HOME/.cargo/env" ]]; then
 fi            
 
 # opencode
-export PATH=/home/wli/.opencode/bin:$PATH
+export PATH=$HOME/.opencode/bin:$PATH
 
-alias codex='/home/wli/.codex/bin/codex-tmux.sh'
+alias codex="$HOME/.codex/bin/codex-tmux.sh"
 
 if (( ${+ZCFG_LOAD_STARTED_AT} )); then
   typeset -F ZCFG_LOAD_ELAPSED
