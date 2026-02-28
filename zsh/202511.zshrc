@@ -904,7 +904,9 @@ fi
 # opencode
 export PATH=$HOME/.opencode/bin:$PATH
 
-alias codex="$HOME/.codex/bin/codex-tmux.sh"
+if [[ -r "$HOME/.codex/bin/codex-tmux.sh" ]]; then
+    alias codex="$HOME/.codex/bin/codex-tmux.sh"
+fi
 
 if (( ${+ZCFG_LOAD_STARTED_AT} )); then
   typeset -F ZCFG_LOAD_ELAPSED
