@@ -922,3 +922,9 @@ fi
 
 # Added by Antigravity
 export PATH="/Users/wli/.antigravity/antigravity/bin:$PATH"
+
+# OpenClaw Completion
+source "/home/wli/.openclaw/completions/openclaw.zsh"
+
+alias claudey="claude --dangerously-skip-permissions" 
+
