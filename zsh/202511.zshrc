@@ -924,7 +924,9 @@ fi
 export PATH="/Users/wli/.antigravity/antigravity/bin:$PATH"
 
 # OpenClaw Completion
-source "/home/wli/.openclaw/completions/openclaw.zsh"
+if [[ -r "$HOME/.openclaw/completions/openclaw.zsh" ]]; then
+    source  "$HOME/.openclaw/completions/openclaw.zsh"
+fi
 
 alias claudey="claude --dangerously-skip-permissions" 
 
