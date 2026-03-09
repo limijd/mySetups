@@ -915,3 +915,4 @@ if (( ${+ZCFG_LOAD_STARTED_AT} )); then
   printf -- "[Info] .zshrc loaded in %.2fs\n" "$ZCFG_LOAD_ELAPSED"
 fi
 
+alias claudey="claude --dangerously-skip-permissions"
