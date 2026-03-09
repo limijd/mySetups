@@ -681,6 +681,11 @@ _path_prepend "${HOME}/bin" "${HOME}/.local/bin"
 
 case ${ZCFG[platform]} in
   macos_arm)
+    _path_prepend /usr/bin
+    _path_prepend /usr/sbin
+    _path_prepend /usr/local/bin
+    _path_prepend /opt/homebrew/bin 
+    _path_prepend /opt/homebrew/sbin 
     _path_prepend /opt/homebrew/bin /opt/homebrew/sbin
     _path_prepend /opt/homebrew/opt/llvm@20/bin
     export BROWSER=${BROWSER:-open}
@@ -915,4 +920,11 @@ if (( ${+ZCFG_LOAD_STARTED_AT} )); then
   printf -- "[Info] .zshrc loaded in %.2fs\n" "$ZCFG_LOAD_ELAPSED"
 fi
 
-alias claudey="claude --dangerously-skip-permissions"
+# Added by Antigravity
+export PATH="/Users/wli/.antigravity/antigravity/bin:$PATH"
+
+# OpenClaw Completion
+source "/home/wli/.openclaw/completions/openclaw.zsh"
+
+alias claudey="claude --dangerously-skip-permissions" 
+
