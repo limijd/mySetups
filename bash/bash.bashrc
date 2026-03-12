@@ -417,10 +417,13 @@ _bashrc_prompt_command() {
 }
 
 if [ -n "${PROMPT_COMMAND:-}" ]; then
-  case ";$PROMPT_COMMAND;" in
+  # Strip trailing semicolons to avoid ";;" when appending
+  _pc="${PROMPT_COMMAND%%;}"
+  case ";${_pc};" in
     *";_bashrc_prompt_command;"*) ;;
-    *) PROMPT_COMMAND="${PROMPT_COMMAND};_bashrc_prompt_command" ;;
+    *) PROMPT_COMMAND="${_pc};_bashrc_prompt_command" ;;
   esac
+  unset _pc
 else
   PROMPT_COMMAND=_bashrc_prompt_command
 fi
