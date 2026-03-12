@@ -798,6 +798,113 @@ up() {
   while (( count-- > 0 )); do cd .. || return; done
 }
 
+zcfg_fetch_url() {
+  if _have curl; then
+    curl -fsSL --connect-timeout 3 --max-time 5 "$1"
+  elif _have wget; then
+    wget -qO- --timeout=5 "$1"
+  else
+    return 127
+  fi
+}
+
+zcfg_parse_public_ip() {
+  sed -n '
+    s/.*"ip"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p
+    s/.*"query"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p
+  ' | head -n 1
+}
+
+zcfg_parse_country_code() {
+  sed -n '
+    s/.*"country"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p
+    s/.*"country_code"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p
+    s/.*"countryCode"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p
+  ' | head -n 1
+}
+
+zcfg_public_ip_country() {
+  local response country ip
+
+  response=$(zcfg_fetch_url "https://ipinfo.io/json" 2>/dev/null) || response=""
+  if [[ -n $response ]]; then
+    country=$(printf '%s\n' "$response" | zcfg_parse_country_code)
+    ip=$(printf '%s\n' "$response" | zcfg_parse_public_ip)
+    if [[ -n $country ]]; then
+      printf '%s|%s\n' "$country" "$ip"
+      return 0
+    fi
+  fi
+
+  response=$(zcfg_fetch_url "https://ipapi.co/json/" 2>/dev/null) || response=""
+  if [[ -n $response ]]; then
+    country=$(printf '%s\n' "$response" | zcfg_parse_country_code)
+    ip=$(printf '%s\n' "$response" | zcfg_parse_public_ip)
+    if [[ -n $country ]]; then
+      printf '%s|%s\n' "$country" "$ip"
+      return 0
+    fi
+  fi
+
+  response=$(zcfg_fetch_url "https://ifconfig.co/json" 2>/dev/null) || response=""
+  if [[ -n $response ]]; then
+    country=$(printf '%s\n' "$response" | zcfg_parse_country_code)
+    ip=$(printf '%s\n' "$response" | zcfg_parse_public_ip)
+    if [[ -n $country ]]; then
+      printf '%s|%s\n' "$country" "$ip"
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
+zcfg_require_us_ip() {
+  local result country ip
+
+  result=$(zcfg_public_ip_country) || {
+    print -u2 -- "refusing to run claude: unable to verify public IP country"
+    return 1
+  }
+
+  country=${result%%|*}
+  ip=${result#*|}
+
+  if [[ $country != "US" ]]; then
+    if [[ -n $ip && $ip != "$result" ]]; then
+      print -u2 -- "refusing to run claude: public IP ${ip} is in ${country}, not US"
+    else
+      print -u2 -- "refusing to run claude: public IP country is ${country}, not US"
+    fi
+    return 1
+  fi
+
+  if [[ -n $ip && $ip != "$result" ]]; then
+    print -u2 -- "US IP verified: ${ip}"
+  else
+    print -u2 -- "US IP verified"
+  fi
+  return 0
+}
+
+my_claude() {
+  _have claude || {
+    print -u2 -- "claude not found in PATH"
+    return 127
+  }
+  zcfg_require_us_ip || return 1
+  command claude "$@"
+}
+
+my_claudey() {
+  _have claude || {
+    print -u2 -- "claude not found in PATH"
+    return 127
+  }
+  zcfg_require_us_ip || return 1
+  command claude --dangerously-skip-permissions "$@"
+}
+
 # Force refresh git remote status cache for current repo
 git-refresh() {
   local repo_root
@@ -929,4 +1036,3 @@ if [[ -r "$HOME/.openclaw/completions/openclaw.zsh" ]]; then
 fi
 
 alias claudey="claude --dangerously-skip-permissions" 
-
