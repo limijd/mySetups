@@ -887,7 +887,9 @@ zcfg_require_us_ip() {
   return 0
 }
 
-my_claude() {
+unalias claude claudey 2>/dev/null
+
+claude() {
   _have claude || {
     print -u2 -- "claude not found in PATH"
     return 127
@@ -896,7 +898,7 @@ my_claude() {
   command claude "$@"
 }
 
-my_claudey() {
+claudey() {
   _have claude || {
     print -u2 -- "claude not found in PATH"
     return 127
@@ -1034,5 +1036,3 @@ export PATH="/Users/wli/.antigravity/antigravity/bin:$PATH"
 if [[ -r "$HOME/.openclaw/completions/openclaw.zsh" ]]; then
     source  "$HOME/.openclaw/completions/openclaw.zsh"
 fi
-
-alias claudey="claude --dangerously-skip-permissions" 
