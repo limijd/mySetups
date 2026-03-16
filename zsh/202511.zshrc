@@ -27,7 +27,7 @@ typeset -gA ZCFG
 ZCFG[os]=$(uname -s)
 ZCFG[arch]=$(uname -m)
 ZCFG[kernel]=$(uname -r)
-ZCFG[host]=$(hostname -s 2>/dev/null)
+ZCFG[host]=$(scutil --get LocalHostName 2>/dev/null || hostname -s 2>/dev/null)
 
 if [[ -f /etc/os-release ]]; then
   source /etc/os-release
@@ -364,7 +364,8 @@ zcfg_geoip_segment() {
         [[ -n $city && -n $country ]] && loc="${city}, ${country}"
       fi
       
-      [[ -n $loc ]] && print -r -- "$loc" > "$cache_file"
+      # Store only city for a compact prompt
+      [[ -n $loc ]] && print -r -- "${loc%%,*}" > "$cache_file"
     ) &>/dev/null &!
   fi
 
@@ -607,7 +608,16 @@ zcfg_prompt_precmd() {
   local git_remote_segment=$(zcfg_git_remote_segment)
   [[ -n $git_remote_segment ]] && git_segment+=" ${git_remote_segment}"
 
-  # Display right prompt time + duration for commands slower than 100ms.
+  # Inline context: <📍City TS_status>
+  local tailscale_segment=$(zcfg_tailscale_segment)
+  local geoip_segment=$(zcfg_geoip_segment)
+  local -a ctx_parts=()
+  [[ -n $geoip_segment ]] && ctx_parts+="$geoip_segment"
+  [[ -n $tailscale_segment ]] && ctx_parts+="$tailscale_segment"
+  local ctx_segment=""
+  [[ ${#ctx_parts[@]} -gt 0 ]] && ctx_segment=" %F{244}<%f${(j: :)ctx_parts}%F{244}>%f"
+
+  # Right-aligned on line 1: duration, ollama, cpu temp, time
   local duration_segment=""
   if (( ZCFG_CMD_STARTED_AT > 0 )); then
     local elapsed=$(( EPOCHREALTIME - ZCFG_CMD_STARTED_AT ))
@@ -618,34 +628,30 @@ zcfg_prompt_precmd() {
       duration_segment=$(printf '%.0fms' "$elapsed_ms")
     fi
   fi
-
-  local time_segment="%F{244}%*%f"
-  local cpu_temp_segment=$(zcfg_cpu_temp_segment)
-  local tailscale_segment=$(zcfg_tailscale_segment)
+  local -a rparts=()
   local ollama_segment=$(zcfg_ollama_segment)
-  local geoip_segment=$(zcfg_geoip_segment)
-  local -a rprompt_parts=()
-  [[ -n $geoip_segment ]] && rprompt_parts+="$geoip_segment"
-  [[ -n $tailscale_segment ]] && rprompt_parts+="$tailscale_segment"
-  [[ -n $ollama_segment ]] && rprompt_parts+="$ollama_segment"
-  [[ -n $cpu_temp_segment ]] && rprompt_parts+="$cpu_temp_segment"
-  [[ -n $duration_segment ]] && rprompt_parts+=("%F{244}${duration_segment}%f")
-  rprompt_parts+="$time_segment"
-  local status_line="${(j: :)rprompt_parts}"
+  local cpu_temp_segment=$(zcfg_cpu_temp_segment)
+  [[ -n $ollama_segment ]] && rparts+="$ollama_segment"
+  [[ -n $cpu_temp_segment ]] && rparts+="$cpu_temp_segment"
+  [[ -n $duration_segment ]] && rparts+=("%F{244}${duration_segment}%f")
+  rparts+=("%F{244}%*%f")
+  local right_status="${(j: :)rparts}"
   RPROMPT=""
 
-  # Right-align status on line 2: calculate visible width, pad with spaces
+  # Pad to right-align right_status on line 1
+  local left_line="${status_segment}${ctx_segment} ${user_host} ${cwd}${git_segment}"
   local zero='%([BSUbfksu]|([FK]|){*})'
-  local vis_text=${(S%%)status_line//$~zero/}
-  local vis_len=${#vis_text}
+  local vis_left=${(S%%)left_line//$~zero/}
+  local vis_right=${(S%%)right_status//$~zero/}
+  local left_len=${#vis_left} right_len=${#vis_right}
   # Emoji are 2 cells wide but ${#} counts as 1
-  [[ $vis_text == *📍* ]] && (( vis_len++ ))
-  [[ $vis_text == *🦙* ]] && (( vis_len++ ))
-  local pad=$(( ${COLUMNS:-80} - vis_len ))
-  (( pad < 0 )) && pad=0
+  [[ $vis_left == *📍* ]] && (( left_len++ ))
+  [[ $vis_right == *🦙* ]] && (( right_len++ ))
+  local pad=$(( ${COLUMNS:-80} - left_len - right_len ))
+  (( pad < 1 )) && pad=1
 
   local symbol='%(!.#.$)'  # show # for root shells
-  PROMPT="${status_segment} ${user_host} ${cwd}${git_segment}"$'\n'"${(l:$pad:: :)}${status_line}"$'\n'"%F{111}${symbol}%f "
+  PROMPT="${left_line}${(l:$pad:: :)}${right_status}"$'\n'"%F{111}${symbol}%f "
   ZCFG_CMD_STARTED_AT=0
 }
 
@@ -957,6 +963,9 @@ git-remote-unskip() {
 if _have direnv; then
   eval "$(direnv hook zsh)"
 fi
+
+# Hugging Face: shared model cache for all users
+export HF_HOME="/usr/local/share/huggingface"
 
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"

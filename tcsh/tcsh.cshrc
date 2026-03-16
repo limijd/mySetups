@@ -124,3 +124,4 @@ checkpath
 
 echo "--- Done. "
 
+source "$HOME/.cargo/env.tcsh"

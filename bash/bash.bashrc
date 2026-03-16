@@ -434,3 +434,4 @@ _bashrc_source_if_readable "$HOME/.bashrc.local"
 if [ "${BASHRC_CHECKPATH_ON_STARTUP:-0}" = "1" ]; then
   checkpath
 fi
+. "$HOME/.cargo/env"
