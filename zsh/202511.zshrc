@@ -684,10 +684,12 @@ case ${ZCFG[platform]} in
     _path_prepend /usr/bin
     _path_prepend /usr/sbin
     _path_prepend /usr/local/bin
-    _path_prepend /opt/homebrew/bin 
-    _path_prepend /opt/homebrew/sbin 
+    export HOMEBREW_NO_ENV_HINTS=1
+    _path_prepend /opt/homebrew/bin
+    _path_prepend /opt/homebrew/sbin
     _path_prepend /opt/homebrew/bin /opt/homebrew/sbin
     _path_prepend /opt/homebrew/opt/llvm@20/bin
+    _path_prepend /opt/homebrew/opt/llvm/bin
     export BROWSER=${BROWSER:-open}
     ;;
   macos_x86_64)
@@ -961,7 +963,9 @@ export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 if _have pyenv; then
   eval "$(pyenv init - zsh)"
-  eval "$(pyenv virtualenv-init -)"
+  if pyenv commands | command grep -qx virtualenv-init; then
+    eval "$(pyenv virtualenv-init -)"
+  fi
 fi
 
 #------------------------------------------------------------------------------
