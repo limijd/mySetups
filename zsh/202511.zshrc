@@ -708,7 +708,6 @@ case ${ZCFG[platform]} in
     ;;
   linux)
     _path_prepend ${HOME}/sandbox/github/nvim-pro-kit/tools/linux_x86_64/nvim/latest
-    _path_prepend ${HOME}/install/x86_64@ubt24/Python-3.13.0/bin
     _path_prepend ${HOME}/sandbox/github/ai-doctool
 
     _path_append /snap/bin
@@ -720,7 +719,6 @@ case ${ZCFG[platform]} in
     _path_append ${HOME}/install/x86_64@ubt24/nvim-0.11/bin
     _path_append ${HOME}/sandbox/github/myScripts
     _path_append ${HOME}/.claude/skills/w-skill-scripts/scripts
-    _path_append ${HOME}/.nvm/versions/node/v20.19.6/bin/
     ;;
 esac
 
@@ -1008,20 +1006,6 @@ esac
 
 export PATH="$HOME/.npm-global/bin:$PATH"
 
-# Lazy-load nvm: defers ~10s startup cost until first use of node/npm/npx/nvm
-export NVM_DIR="$HOME/.nvm"
-if [[ -s "$NVM_DIR/nvm.sh" ]]; then
-  _nvm_lazy_load() {
-    unset -f nvm node npm npx 2>/dev/null
-    printf -- "[Info] loading nvm (first use)...\n"
-    \. "$NVM_DIR/nvm.sh"
-    [[ -s "$NVM_DIR/bash_completion" ]] && \. "$NVM_DIR/bash_completion"
-  }
-  nvm()  { _nvm_lazy_load; nvm  "$@" }
-  node() { _nvm_lazy_load; node "$@" }
-  npm()  { _nvm_lazy_load; npm  "$@" }
-  npx()  { _nvm_lazy_load; npx  "$@" }
-fi
 
 if [[ -r "$HOME/.cargo/env" ]]; then
   printf -- "[Info] setting rust/cargo\n"
@@ -1031,9 +1015,9 @@ fi
 # opencode
 export PATH=$HOME/.opencode/bin:$PATH
 
-if [[ -r "$HOME/.codex/bin/codex-tmux.sh" ]]; then
-    alias codex="$HOME/.codex/bin/codex-tmux.sh"
-fi
+#if [[ -r "$HOME/.codex/bin/codex-tmux.sh" ]]; then
+#    alias codex="$HOME/.codex/bin/codex-tmux.sh"
+#fi
 
 if (( ${+ZCFG_LOAD_STARTED_AT} )); then
   typeset -F ZCFG_LOAD_ELAPSED
@@ -1048,4 +1032,18 @@ export PATH="/Users/wli/.antigravity/antigravity/bin:$PATH"
 # OpenClaw Completion
 if [[ -r "$HOME/.openclaw/completions/openclaw.zsh" ]]; then
     source  "$HOME/.openclaw/completions/openclaw.zsh"
+fi
+
+# bun completions
+[ -s "/home/wli/.bun/_bun" ] && source "/home/wli/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# fnm
+FNM_PATH="/home/wli/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "$(fnm env --shell zsh)"
 fi
