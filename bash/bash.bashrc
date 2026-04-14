@@ -365,33 +365,9 @@ if _bashrc_have pyenv; then
   fi
 fi
 
-export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
-if [ -s "$NVM_DIR/nvm.sh" ]; then
-  _bashrc_load_nvm() {
-    unset -f nvm node npm npx 2>/dev/null
-    . "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
-  }
-
-  nvm() {
-    _bashrc_load_nvm
-    nvm "$@"
-  }
-
-  node() {
-    _bashrc_load_nvm
-    node "$@"
-  }
-
-  npm() {
-    _bashrc_load_nvm
-    npm "$@"
-  }
-
-  npx() {
-    _bashrc_load_nvm
-    npx "$@"
-  }
+# node 由 fnm 管理（见 .zshrc），bash 下按需初始化 fnm
+if command -v fnm >/dev/null 2>&1; then
+  eval "$(fnm env)"
 fi
 
 _bashrc_source_if_readable "$HOME/.cargo/env"

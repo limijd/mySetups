@@ -691,15 +691,18 @@ case ${ZCFG[platform]} in
     _path_prepend /usr/sbin
     _path_prepend /usr/local/bin
     export HOMEBREW_NO_ENV_HINTS=1
+    export HOMEBREW_NO_AUTO_UPDATE=1
     _path_prepend /opt/homebrew/bin
     _path_prepend /opt/homebrew/sbin
     _path_prepend /opt/homebrew/bin /opt/homebrew/sbin
     _path_prepend /opt/homebrew/opt/llvm@20/bin
     _path_prepend /opt/homebrew/opt/llvm/bin
+    _path_prepend ${HOME}/sandbox/local/scripts 
     export BROWSER=${BROWSER:-open}
     ;;
   macos_x86_64)
     _path_prepend /usr/local/bin /usr/local/sbin
+    _path_prepend ${HOME}/sandbox/local/scripts 
     export BROWSER=${BROWSER:-open}
     ;;
   wsl)
@@ -710,6 +713,7 @@ case ${ZCFG[platform]} in
     _path_prepend ${HOME}/sandbox/github/nvim-pro-kit/tools/linux_x86_64/nvim/latest
     _path_prepend ${HOME}/install/x86_64@ubt24/Python-3.13.0/bin
     _path_prepend ${HOME}/sandbox/github/ai-doctool
+    _path_prepend ${HOME}/sandbox/local/scripts 
 
     _path_append /snap/bin
     _path_append ${HOME}/install/scripts 
@@ -720,7 +724,7 @@ case ${ZCFG[platform]} in
     _path_append ${HOME}/install/x86_64@ubt24/nvim-0.11/bin
     _path_append ${HOME}/sandbox/github/myScripts
     _path_append ${HOME}/.claude/skills/w-skill-scripts/scripts
-    _path_append ${HOME}/.nvm/versions/node/v20.19.6/bin/
+    # node 由 fnm 管理，不再硬编码 nvm 路径
     ;;
 esac
 
@@ -1008,19 +1012,10 @@ esac
 
 export PATH="$HOME/.npm-global/bin:$PATH"
 
-# Lazy-load nvm: defers ~10s startup cost until first use of node/npm/npx/nvm
-export NVM_DIR="$HOME/.nvm"
-if [[ -s "$NVM_DIR/nvm.sh" ]]; then
-  _nvm_lazy_load() {
-    unset -f nvm node npm npx 2>/dev/null
-    printf -- "[Info] loading nvm (first use)...\n"
-    \. "$NVM_DIR/nvm.sh"
-    [[ -s "$NVM_DIR/bash_completion" ]] && \. "$NVM_DIR/bash_completion"
-  }
-  nvm()  { _nvm_lazy_load; nvm  "$@" }
-  node() { _nvm_lazy_load; node "$@" }
-  npm()  { _nvm_lazy_load; npm  "$@" }
-  npx()  { _nvm_lazy_load; npx  "$@" }
+# fnm: 替代 nvm，Rust 实现，初始化 ~1-3ms，无需 lazy load
+# 安装: macOS `brew install fnm` / Linux `cargo install fnm`
+if _have fnm; then
+  eval "$(fnm env --use-on-cd --shell zsh)"
 fi
 
 if [[ -r "$HOME/.cargo/env" ]]; then
@@ -1030,10 +1025,6 @@ fi
 
 # opencode
 export PATH=$HOME/.opencode/bin:$PATH
-
-if [[ -r "$HOME/.codex/bin/codex-tmux.sh" ]]; then
-    alias codex="$HOME/.codex/bin/codex-tmux.sh"
-fi
 
 if (( ${+ZCFG_LOAD_STARTED_AT} )); then
   typeset -F ZCFG_LOAD_ELAPSED
@@ -1049,3 +1040,10 @@ export PATH="/Users/wli/.antigravity/antigravity/bin:$PATH"
 if [[ -r "$HOME/.openclaw/completions/openclaw.zsh" ]]; then
     source  "$HOME/.openclaw/completions/openclaw.zsh"
 fi
+
+# bun completions
+[ -s "/Users/wli/.bun/_bun" ] && source "/Users/wli/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
