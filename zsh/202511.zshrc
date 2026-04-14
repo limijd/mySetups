@@ -711,7 +711,6 @@ case ${ZCFG[platform]} in
     ;;
   linux)
     _path_prepend ${HOME}/sandbox/github/nvim-pro-kit/tools/linux_x86_64/nvim/latest
-    _path_prepend ${HOME}/install/x86_64@ubt24/Python-3.13.0/bin
     _path_prepend ${HOME}/sandbox/github/ai-doctool
     _path_prepend ${HOME}/sandbox/local/scripts 
 
@@ -1042,7 +1041,7 @@ if [[ -r "$HOME/.openclaw/completions/openclaw.zsh" ]]; then
 fi
 
 # bun completions
-[ -s "/Users/wli/.bun/_bun" ] && source "/Users/wli/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"

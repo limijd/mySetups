@@ -367,7 +367,7 @@ fi
 
 # node 由 fnm 管理（见 .zshrc），bash 下按需初始化 fnm
 if command -v fnm >/dev/null 2>&1; then
-  eval "$(fnm env)"
+  eval "$(fnm env --shell bash)"
 fi
 
 _bashrc_source_if_readable "$HOME/.cargo/env"
