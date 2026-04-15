@@ -871,10 +871,11 @@ zcfg_public_ip_country() {
 }
 
 zcfg_require_us_ip() {
-  local result country ip
+  local tool_name result country ip
+  tool_name=${1:-command}
 
   result=$(zcfg_public_ip_country) || {
-    print -u2 -- "refusing to run claude: unable to verify public IP country"
+    print -u2 -- "refusing to run ${tool_name}: unable to verify public IP country"
     return 1
   }
 
@@ -883,9 +884,9 @@ zcfg_require_us_ip() {
 
   if [[ $country != "US" ]]; then
     if [[ -n $ip && $ip != "$result" ]]; then
-      print -u2 -- "refusing to run claude: public IP ${ip} is in ${country}, not US"
+      print -u2 -- "refusing to run ${tool_name}: public IP ${ip} is in ${country}, not US"
     else
-      print -u2 -- "refusing to run claude: public IP country is ${country}, not US"
+      print -u2 -- "refusing to run ${tool_name}: public IP country is ${country}, not US"
     fi
     return 1
   fi
@@ -898,14 +899,14 @@ zcfg_require_us_ip() {
   return 0
 }
 
-unalias claude claudey 2>/dev/null
+unalias claude claudey codexauto codexyes 2>/dev/null
 
 claude() {
   _have claude || {
     print -u2 -- "claude not found in PATH"
     return 127
   }
-  zcfg_require_us_ip || return 1
+  zcfg_require_us_ip claude || return 1
   command claude "$@"
 }
 
@@ -914,8 +915,26 @@ claudey() {
     print -u2 -- "claude not found in PATH"
     return 127
   }
-  zcfg_require_us_ip || return 1
+  zcfg_require_us_ip claude || return 1
   command claude --dangerously-skip-permissions "$@"
+}
+
+codexauto() {
+  _have codex || {
+    print -u2 -- "codex not found in PATH"
+    return 127
+  }
+  zcfg_require_us_ip codex || return 1
+  command codex --full-auto "$@"
+}
+
+codexyes() {
+  _have codex || {
+    print -u2 -- "codex not found in PATH"
+    return 127
+  }
+  zcfg_require_us_ip codex || return 1
+  command codex --dangerously-bypass-approvals-and-sandbox "$@"
 }
 
 # Force refresh git remote status cache for current repo
