@@ -1031,7 +1031,9 @@ esac
 export PATH="$HOME/.npm-global/bin:$PATH"
 
 # fnm: 替代 nvm，Rust 实现，初始化 ~1-3ms，无需 lazy load
-# 安装: macOS `brew install fnm` / Linux `cargo install fnm`
+# 安装: macOS `brew install fnm` / Linux 官方脚本 `curl -fsSL https://fnm.vercel.app/install.sh | bash`
+# 官方脚本把 fnm 装到 ~/.local/share/fnm/，该目录不在默认 PATH，需自己兜底加入，否则下面 _have fnm 会失败
+[[ -x "$HOME/.local/share/fnm/fnm" ]] && export PATH="$HOME/.local/share/fnm:$PATH"
 if _have fnm; then
   eval "$(fnm env --use-on-cd --shell zsh)"
 fi
