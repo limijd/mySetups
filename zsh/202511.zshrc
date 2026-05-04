@@ -1043,6 +1043,12 @@ if [[ -r "$HOME/.cargo/env" ]]; then
   . "$HOME/.cargo/env"
 fi            
 
+# go
+export GOENV_ROOT="$HOME/.goenv"
+export PATH="$GOENV_ROOT/bin:$PATH"
+eval "$(goenv init -)"
+
+
 # opencode
 export PATH=$HOME/.opencode/bin:$PATH
 
