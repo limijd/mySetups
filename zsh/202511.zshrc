@@ -828,10 +828,18 @@ zcfg_parse_public_ip() {
 
 zcfg_parse_country_code() {
   sed -n '
-    s/.*"country"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p
     s/.*"country_code"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p
     s/.*"countryCode"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p
+    s/.*"country_iso"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p
+    s/.*"country"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p
   ' | head -n 1
+}
+
+zcfg_is_us_country() {
+  case ${1:l} in
+    us|usa|"united states"|"united states of america") return 0 ;;
+    *) return 1 ;;
+  esac
 }
 
 zcfg_public_ip_country() {
@@ -882,7 +890,7 @@ zcfg_require_us_ip() {
   country=${result%%|*}
   ip=${result#*|}
 
-  if [[ $country != "US" ]]; then
+  if ! zcfg_is_us_country "$country"; then
     if [[ -n $ip && $ip != "$result" ]]; then
       print -u2 -- "refusing to run ${tool_name}: public IP ${ip} is in ${country}, not US"
     else
