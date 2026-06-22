@@ -699,6 +699,8 @@ case ${ZCFG[platform]} in
     _path_prepend /opt/homebrew/opt/llvm/bin
     _path_prepend ${HOME}/sandbox/local/scripts 
     export BROWSER=${BROWSER:-open}
+    # VS Code `code` CLI (app bundle not on PATH)
+    export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
     ;;
   macos_x86_64)
     _path_prepend /usr/local/bin /usr/local/sbin
@@ -1043,10 +1045,13 @@ if [[ -r "$HOME/.cargo/env" ]]; then
   . "$HOME/.cargo/env"
 fi            
 
-# go
+# go (goenv: 多版本 go 管理)
+# 未安装 goenv 时跳过，避免 `command not found: goenv`
 export GOENV_ROOT="$HOME/.goenv"
-export PATH="$GOENV_ROOT/bin:$PATH"
-eval "$(goenv init -)"
+[[ -d "$GOENV_ROOT/bin" ]] && export PATH="$GOENV_ROOT/bin:$PATH"
+if _have goenv; then
+  eval "$(goenv init -)"
+fi
 
 
 # opencode
@@ -1074,5 +1079,3 @@ fi
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-# VS Code `code` CLI (app bundle not on PATH)
-export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
