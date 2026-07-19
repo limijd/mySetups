@@ -729,6 +729,9 @@ case ${ZCFG[platform]} in
     ;;
 esac
 
+# macOS: 阻止 cp/tar/rsync 等在非原生文件系统（如 Cryptomator 挂载盘）生成 ._* AppleDouble 文件
+[[ ${ZCFG[os]} == Darwin ]] && export COPYFILE_DISABLE=1
+
 #------------------------------------------------------------------------------
 # Aliases (quality-of-life wrappers; safe to extend per host)
 #------------------------------------------------------------------------------
