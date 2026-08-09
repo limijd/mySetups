@@ -904,7 +904,7 @@ zcfg_require_us_ip() {
   return 0
 }
 
-unalias claude claudey codexauto codexyes 2>/dev/null
+unalias claude claudey claudey_fable5 claudey_opus codexauto codexyes 2>/dev/null
 
 claude() {
   _have claude || {
@@ -923,6 +923,9 @@ claudey() {
   zcfg_require_us_ip claude || return 1
   command claude --dangerously-skip-permissions "$@"
 }
+
+alias claudey_fable5='claudey --model claude-fable-5'
+alias claudey_opus='claudey --model opus'
 
 codexauto() {
   _have codex || {

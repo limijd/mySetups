@@ -411,3 +411,14 @@ if [ "${BASHRC_CHECKPATH_ON_STARTUP:-0}" = "1" ]; then
   checkpath
 fi
 . "$HOME/.cargo/env"
+
+# fnm
+FNM_PATH="/home/wli/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "$(fnm env --shell bash)"
+fi
+
+# >>> Codex installer >>>
+export PATH="/home/wli/.local/bin:$PATH"
+# <<< Codex installer <<<
