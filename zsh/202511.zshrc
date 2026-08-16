@@ -699,6 +699,8 @@ case ${ZCFG[platform]} in
     _path_prepend /opt/homebrew/opt/llvm/bin
     _path_prepend ${HOME}/sandbox/local/scripts 
     export BROWSER=${BROWSER:-open}
+    # VS Code `code` CLI (app bundle not on PATH)
+    export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
     ;;
   macos_x86_64)
     _path_prepend /usr/local/bin /usr/local/sbin
@@ -726,6 +728,9 @@ case ${ZCFG[platform]} in
     # node 由 fnm 管理，不再硬编码 nvm 路径
     ;;
 esac
+
+# macOS: 阻止 cp/tar/rsync 等在非原生文件系统（如 Cryptomator 挂载盘）生成 ._* AppleDouble 文件
+[[ ${ZCFG[os]} == Darwin ]] && export COPYFILE_DISABLE=1
 
 #------------------------------------------------------------------------------
 # Aliases (quality-of-life wrappers; safe to extend per host)
@@ -907,7 +912,7 @@ zcfg_require_us_ip() {
   return 0
 }
 
-unalias claude claudey codexauto codexyes 2>/dev/null
+unalias claude claudey claudey_fable5 claudey_opus codexauto codexyes 2>/dev/null
 
 claude() {
   _have claude || {
@@ -926,6 +931,9 @@ claudey() {
   zcfg_require_us_ip claude || return 1
   command claude --dangerously-skip-permissions "$@"
 }
+
+alias claudey_fable5='claudey --model claude-fable-5'
+alias claudey_opus='claudey --model opus'
 
 codexauto() {
   _have codex || {
@@ -1051,12 +1059,13 @@ if [[ -r "$HOME/.cargo/env" ]]; then
   . "$HOME/.cargo/env"
 fi            
 
-# go
+# go (goenv: 多版本 go 管理)
+# 未安装 goenv 时跳过，避免 `command not found: goenv`
 export GOENV_ROOT="$HOME/.goenv"
-export PATH="$GOENV_ROOT/bin:$PATH"
-eval "$(goenv init -)"
-export PATH="$GOROOT/bin:$PATH"
-export PATH="$GOPATH/bin:$PATH"
+_path_prepend "$GOENV_ROOT/bin"
+if _have goenv; then
+  eval "$(goenv init -)"
+fi
 
 
 # opencode
