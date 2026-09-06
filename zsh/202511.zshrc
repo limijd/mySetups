@@ -912,7 +912,7 @@ zcfg_require_us_ip() {
   return 0
 }
 
-unalias claude claudey claudey_fable claudey_opus claudey_sonnet codexauto codexyes codexyes_gpt_6_astra codexyes_gpt_5_6_sol codexyes_gpt_5_6_terra codexyes_gpt_5_6_luna codexyes_gpt_5_5 2>/dev/null
+unalias claude claudey claudey_fable claudey_opus claudey_sonnet claude_sel codexauto codexyes codexyes_gpt_6_astra codexyes_gpt_5_6_sol codexyes_gpt_5_6_terra codexyes_gpt_5_6_luna codexyes_gpt_5_5 2>/dev/null
 
 claude() {
   _have claude || {
@@ -935,6 +935,42 @@ claudey() {
 alias claudey_fable='claudey --model fable'
 alias claudey_opus='claudey --model opus'
 alias claudey_sonnet='claudey --model sonnet'
+
+# 交互式选择 claude 模型，默认带 --dangerously-skip-permissions
+claude_sel() {
+  _have claude || {
+    print -u2 -- "claude not found in PATH"
+    return 127
+  }
+  zcfg_require_us_ip claude || return 1
+
+  local -a models claude_args
+  models=(fable opus sonnet)
+
+  local choice model i
+  print "select model:"
+  for (( i = 1; i <= $#models; i++ )); do
+    print "  $i) $models[i]"
+  done
+  print "  $(( $#models + 1 ))) default"
+  while true; do
+    read -r "choice?model> " || { model=; break }   # EOF → 默认模型
+    if [[ $choice == $(( $#models + 1 )) ]]; then
+      model=
+      break
+    fi
+    if [[ $choice == <-> ]] && (( choice >= 1 && choice <= $#models )); then
+      model=$models[choice]
+      break
+    fi
+    print -u2 -- "invalid choice"
+  done
+
+  [[ -n $model ]] && claude_args+=(--model $model)
+  claude_args=(--dangerously-skip-permissions "${claude_args[@]}" "$@")
+  print -r -- "command: claude ${(@q)claude_args}"
+  command claude "${claude_args[@]}"
+}
 
 codexauto() {
   _have codex || {
