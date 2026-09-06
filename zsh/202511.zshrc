@@ -1009,7 +1009,7 @@ export HF_HOME="/usr/local/share/huggingface"
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 if _have pyenv; then
-  eval "$(pyenv init - zsh)"
+  eval "$(pyenv init --no-rehash - zsh)"
   if pyenv commands | command grep -qx virtualenv-init; then
     eval "$(pyenv virtualenv-init -)"
   fi
