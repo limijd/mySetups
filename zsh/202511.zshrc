@@ -960,6 +960,75 @@ alias codexyes_gpt_5_6_terra='codexyes --model gpt-5.6-terra'
 alias codexyes_gpt_5_6_luna='codexyes --model gpt-5.6-luna'
 alias codexyes_gpt_5_5='codexyes --model gpt-5.5'
 
+# 交互式选择 codex 模型与推理 effort，默认带 --dangerously-bypass-approvals-and-sandbox
+# effort 经 -c model_reasoning_effort=<level> 传入（codex 0.153 无 --effort CLI flag，档位来自 codex debug models）
+codex_sel() {
+  _have codex || {
+    print -u2 -- "codex not found in PATH"
+    return 127
+  }
+  zcfg_require_us_ip codex || return 1
+
+  local -a models codex_args
+  models=(gpt-6-astra gpt-5.6-sol gpt-5.6-terra gpt-5.6-luna gpt-5.5)
+  # 各模型支持的 reasoning effort 档位
+  local -A effort_levels
+  effort_levels=(
+    gpt-6-astra "low medium high xhigh max ultra"
+    gpt-5.6-sol "low medium high xhigh max ultra"
+    gpt-5.6-terra "low medium high xhigh max ultra"
+    gpt-5.6-luna "low medium high xhigh"
+    gpt-5.5 "low medium high xhigh"
+  )
+
+  local choice model effort i
+  print "select model:"
+  for (( i = 1; i <= $#models; i++ )); do
+    print "  $i) $models[i]"
+  done
+  print "  $(( $#models + 1 ))) default"
+  while true; do
+    read -r "choice?model> " || { model=; break }   # EOF → 默认模型
+    if [[ $choice == $(( $#models + 1 )) ]]; then
+      model=
+      break
+    fi
+    if [[ $choice == <-> ]] && (( choice >= 1 && choice <= $#models )); then
+      model=$models[choice]
+      break
+    fi
+    print -u2 -- "invalid choice"
+  done
+
+  if [[ -n $model ]]; then
+    local -a efforts
+    efforts=(${=effort_levels[$model]})
+    print "select effort:"
+    for (( i = 1; i <= $#efforts; i++ )); do
+      print "  $i) $efforts[i]"
+    done
+    print "  $(( $#efforts + 1 ))) default"
+    while true; do
+      read -r "choice?effort> " || { effort=; break }
+      if [[ $choice == $(( $#efforts + 1 )) ]]; then
+        effort=
+        break
+      fi
+      if [[ $choice == <-> ]] && (( choice >= 1 && choice <= $#efforts )); then
+        effort=$efforts[choice]
+        break
+      fi
+      print -u2 -- "invalid choice"
+    done
+  fi
+
+  [[ -n $model ]] && codex_args+=(--model $model)
+  [[ -n $effort ]] && codex_args+=(-c "model_reasoning_effort=$effort")
+  codex_args=(--dangerously-bypass-approvals-and-sandbox "${codex_args[@]}" "$@")
+  print -r -- "command: codex ${(@q)codex_args}"
+  command codex "${codex_args[@]}"
+}
+
 # Force refresh git remote status cache for current repo
 git-refresh() {
   local repo_root
