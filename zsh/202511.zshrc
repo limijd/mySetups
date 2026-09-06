@@ -912,7 +912,7 @@ zcfg_require_us_ip() {
   return 0
 }
 
-unalias claude claudey claudey_fable5 claudey_opus codexauto codexyes 2>/dev/null
+unalias claude claudey claudey_fable claudey_opus claudey_sonnet codexauto codexyes codexyes_gpt_6_astra codexyes_gpt_5_6_sol codexyes_gpt_5_6_terra codexyes_gpt_5_6_luna codexyes_gpt_5_5 2>/dev/null
 
 claude() {
   _have claude || {
@@ -932,8 +932,9 @@ claudey() {
   command claude --dangerously-skip-permissions "$@"
 }
 
-alias claudey_fable5='claudey --model claude-fable-5'
+alias claudey_fable='claudey --model fable'
 alias claudey_opus='claudey --model opus'
+alias claudey_sonnet='claudey --model sonnet'
 
 codexauto() {
   _have codex || {
@@ -952,6 +953,12 @@ codexyes() {
   zcfg_require_us_ip codex || return 1
   command codex --dangerously-bypass-approvals-and-sandbox "$@"
 }
+
+alias codexyes_gpt_6_astra='codexyes --model gpt-6-astra'
+alias codexyes_gpt_5_6_sol='codexyes --model gpt-5.6-sol'
+alias codexyes_gpt_5_6_terra='codexyes --model gpt-5.6-terra'
+alias codexyes_gpt_5_6_luna='codexyes --model gpt-5.6-luna'
+alias codexyes_gpt_5_5='codexyes --model gpt-5.5'
 
 # Force refresh git remote status cache for current repo
 git-refresh() {
@@ -1009,7 +1016,7 @@ export HF_HOME="/usr/local/share/huggingface"
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 if _have pyenv; then
-  eval "$(pyenv init - zsh)"
+  eval "$(pyenv init --no-rehash - zsh)"
   if pyenv commands | command grep -qx virtualenv-init; then
     eval "$(pyenv virtualenv-init -)"
   fi
@@ -1062,10 +1069,15 @@ fi
 # go (goenv: 多版本 go 管理)
 # 未安装 goenv 时跳过，避免 `command not found: goenv`
 export GOENV_ROOT="$HOME/.goenv"
+# shims 放 PATH 前面：goenv 版本优先于系统 go（goenv 默认放末尾）
+export GOENV_PATH_ORDER=front
 _path_prepend "$GOENV_ROOT/bin"
 if _have goenv; then
   eval "$(goenv init -)"
 fi
+# 文档 2.4: GOROOT/GOPATH 由 goenv 自动设置（GOPATH 为 $HOME/go/<version>），
+# GOPATH/bin 需入 PATH；GOROOT/bin 不必加：go/gofmt 已由 goenv shims 接管
+[[ -n $GOPATH ]] && _path_prepend "$GOPATH/bin"
 
 
 # opencode
