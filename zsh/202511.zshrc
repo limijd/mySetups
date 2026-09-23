@@ -1210,9 +1210,6 @@ fi
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-# Added by Comate (zulu-cli)
-export PATH="/home/wli/.comate/zulu-cli/bin:$PATH"
-
 # pnpm
 export PNPM_HOME="/home/wli/.local/share/pnpm"
 case ":$PATH:" in
