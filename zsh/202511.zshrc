@@ -997,25 +997,28 @@ alias codexyes_gpt_5_6_luna='codexyes --model gpt-5.6-luna'
 alias codexyes_gpt_5_5='codexyes --model gpt-5.5'
 
 # 交互式选择 codex 模型与推理 effort，默认带 --dangerously-bypass-approvals-and-sandbox
-# effort 经 -c model_reasoning_effort=<level> 传入（codex 0.153 无 --effort CLI flag，档位来自 codex debug models）
+# 模型与 effort 从 codex debug models 实时目录读取
 codex_sel() {
   _have codex || {
     print -u2 -- "codex not found in PATH"
     return 127
   }
+  _have jq || {
+    print -u2 -- "jq not found in PATH"
+    return 127
+  }
   zcfg_require_us_ip codex || return 1
 
+  local catalog model_list effort_list
+  catalog=$(command codex debug models) || return 1
+  model_list=$(print -r -- "$catalog" | jq -r '.models[] | select(.visibility == "list") | .slug') || return 1
+  [[ -n $model_list ]] || {
+    print -u2 -- "no selectable models in Codex catalog"
+    return 1
+  }
+
   local -a models codex_args
-  models=(gpt-6-astra gpt-5.6-sol gpt-5.6-terra gpt-5.6-luna gpt-5.5)
-  # 各模型支持的 reasoning effort 档位
-  local -A effort_levels
-  effort_levels=(
-    gpt-6-astra "low medium high xhigh max ultra"
-    gpt-5.6-sol "low medium high xhigh max ultra"
-    gpt-5.6-terra "low medium high xhigh max ultra"
-    gpt-5.6-luna "low medium high xhigh"
-    gpt-5.5 "low medium high xhigh"
-  )
+  models=("${(@f)model_list}")
 
   local choice model effort i
   print "select model:"
@@ -1038,24 +1041,27 @@ codex_sel() {
 
   if [[ -n $model ]]; then
     local -a efforts
-    efforts=(${=effort_levels[$model]})
-    print "select effort:"
-    for (( i = 1; i <= $#efforts; i++ )); do
-      print "  $i) $efforts[i]"
-    done
-    print "  $(( $#efforts + 1 ))) default"
-    while true; do
-      read -r "choice?effort> " || { effort=; break }
-      if [[ $choice == $(( $#efforts + 1 )) ]]; then
-        effort=
-        break
-      fi
-      if [[ $choice == <-> ]] && (( choice >= 1 && choice <= $#efforts )); then
-        effort=$efforts[choice]
-        break
-      fi
-      print -u2 -- "invalid choice"
-    done
+    effort_list=$(print -r -- "$catalog" | jq -r --arg model "$model" '.models[] | select(.slug == $model) | .supported_reasoning_levels[].effort') || return 1
+    efforts=("${(@f)effort_list}")
+    if (( $#efforts )); then
+      print "select effort:"
+      for (( i = 1; i <= $#efforts; i++ )); do
+        print "  $i) $efforts[i]"
+      done
+      print "  $(( $#efforts + 1 ))) default"
+      while true; do
+        read -r "choice?effort> " || { effort=; break }
+        if [[ $choice == $(( $#efforts + 1 )) ]]; then
+          effort=
+          break
+        fi
+        if [[ $choice == <-> ]] && (( choice >= 1 && choice <= $#efforts )); then
+          effort=$efforts[choice]
+          break
+        fi
+        print -u2 -- "invalid choice"
+      done
+    fi
   fi
 
   [[ -n $model ]] && codex_args+=(--model $model)
