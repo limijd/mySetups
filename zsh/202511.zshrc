@@ -1071,6 +1071,8 @@ codex_sel() {
   command codex "${codex_args[@]}"
 }
 
+alias agy='agy --dangerously-skip-permissions'
+
 # Force refresh git remote status cache for current repo
 git-refresh() {
   local repo_root
@@ -1223,3 +1225,7 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME/bin:$PATH" ;;
 esac
 # pnpm end
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/wli/.local/bin:$PATH"
